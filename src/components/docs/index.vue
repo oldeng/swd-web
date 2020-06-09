@@ -49,7 +49,7 @@
         </div>
         <h2>配套脚手架</h2>
         <div>
-          <p>为了简化开发项目与本平台的关联步骤，本平台提供了一款基于vue-cli3.0开发的 swd-cli 脚手架，此脚手架已集成开发中常用的一些包，使用时无需再次下载安装。</p>
+          <p>为了简化开发项目与本平台的关联步骤，本平台提供了一款基于 vue-cli3.0 开发的  <a href="https://www.npmjs.com/package/swd-cli">swd-cli</a> 脚手架，此脚手架已集成开发中常用的一些包，使用时无需再次下载安装。</p>
           <h4>使用方法</h4>
           <ul>
             <li>全局安装 swd-cli 脚手架：npm install swd-cli -g</li>
