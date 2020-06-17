@@ -48,7 +48,7 @@ router.beforeEach((to, from, next) => {
   // let userInfo = JSON.parse(sessionStorage.getItem('state'));//获取缓存看是否登录过
   let state = sessionStorage.getItem('state');//获取缓存看是否登录过
   // if (whiteList.indexOf(to.path) < 0) {//访问了需要登录才能访问的页面
-  if (state === 'true') {//登录过来直接进去
+  if (state === 'isOk') {//登录过来直接进去
     next();
   } else {
     if (to.path == '/login') {

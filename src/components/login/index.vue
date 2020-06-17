@@ -368,7 +368,7 @@ export default {
           this.loading = false;
           if (res.data.result) {
             window.sessionStorage.clear();
-            window.sessionStorage.setItem("state", "true");
+            window.sessionStorage.setItem("state", "isOk");
             let user = res.data.content;
             user.url =
               user.url.indexOf("http") > -1 ? user.url : this.$url + user.url;

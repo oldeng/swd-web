@@ -110,10 +110,10 @@
           <transition name="fade">
             <div v-if="modeType==='1'">
               <label>部署命令：</label>
-              <Input v-model="order" placeholder="例如：cnpm run build" style="width: 300px" />
+              <Input v-model="order" placeholder="例如：npm run build" style="width: 300px" />
               <Tooltip
                 max-width="200"
-                content="最好填写项目打包指令，不建议填写开发指令，支持 cnpm 和 npm 指令。"
+                content="填写项目打包指令，支持 npm 和 cnpm 指令。"
                 placement="right"
               >
                 <Icon type="ios-help-circle-outline tip" size="22" />
@@ -344,7 +344,7 @@ export default {
       modeType: "0",
       gitUrl: "", //git 地址
       branch: "master", //git 分支
-      order: "cnpm run build" //部署命令
+      order: "npm run build" //部署命令
       // mode: "静态部署" //模式
       // ----------------------------------------------------
     };
@@ -398,7 +398,7 @@ export default {
       this.dist = "dist";
       this.gitUrl = "";
       this.branch = "master";
-      this.order = "cnpm run build";
+      this.order = "npm run build";
       this.root = "";
       this.version = "1.0.1";
       this.versionVal = "1.0.1";
@@ -583,7 +583,7 @@ export default {
           dist: this.dist ? this.dist : "dist",
           gitUrl: this.gitUrl, //git 地址
           branch: this.branch ? this.branch : "master", //git 分支
-          order: this.order ? this.order : "cnpm run build", //部署命令
+          order: this.order ? this.order : "npm run build", //部署命令
           mode: this.modeType //模式  cnpm run build
         };
         this.$Message.loading({
