@@ -40,6 +40,11 @@ export default new Router({
           component: () => import('../components/docs/index.vue')
         },
         {
+          path: '/projectmanage',
+          name: 'projectManagement',
+          component: () => import('../components/projectManagement/index.vue')
+        },
+        {
           path: '/profile',
           name: 'profile',
           component: () => import('../components/profile/index.vue')

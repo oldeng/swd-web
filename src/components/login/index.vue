@@ -140,7 +140,10 @@
         </div>
       </div>
       <!-- 账号密码 -->
-      <p class="moren"><span>账号：admin</span><span>密码：123456</span></p>
+      <p class="moren">
+        <span>账号：admin</span>
+        <span>密码：123456</span>
+      </p>
     </div>
     <div class="bolang">
       <svg class="waves" viewBox="0 24 150 28" preserveAspectRatio="none" shape-rendering="auto">
@@ -370,8 +373,13 @@ export default {
             window.sessionStorage.clear();
             window.sessionStorage.setItem("state", "isOk");
             let user = res.data.content;
-            user.url =
-              user.url.indexOf("http") > -1 ? user.url : this.$url + user.url;
+
+            if (!user.url) {
+              user.url = this.$url + "/images/dt.png";
+            } else {
+              user.url = user.url.indexOf("http") > -1 ? user.url : this.$url + user.url;
+            }
+
             this.$store.commit("setUser", user);
             this.handleClear();
             this.$router.push({ path: "/" });

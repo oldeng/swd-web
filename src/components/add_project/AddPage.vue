@@ -53,10 +53,14 @@
             <label>所属项目：</label>
             <Select
               style="width:300px;margin-right:15px;"
-              :value="projectName"
+              v-model="key"
               @on-change="projectNameChange"
             >
-              <Option v-for="(item,i) in sideList" :value="item" :key="i+'w'">{{ item }}</Option>
+              <Option
+                v-for="(item,i) in sideList"
+                :value="item.key"
+                :key="i+'w'"
+              >{{ item.projectName }}</Option>
             </Select>
             <Icon
               type="ios-add-circle-outline"
@@ -87,6 +91,14 @@
             </Tooltip>
             <span v-if="isEx" class="isEx">此目录已存在，请重新输入！</span>
           </div>
+          <div v-if="!isAddClear">
+            <label>部署端口：</label>
+            <Input v-model="port" placeholder="例如：8080 （选填）" style="width: 300px" />
+            <Tooltip max-width="200" content="默认：本系统端口号/部署目录/index.html" placement="right">
+              <Icon type="ios-help-circle-outline tip" size="22" :class="[isEx?'isEx':'']" />
+            </Tooltip>
+            <span v-if="isPort" class="isEx">此端口已存在，请重新输入！</span>
+          </div>
           <div v-if="modeType==='1'">
             <label>Git 地址：</label>
             <Input
@@ -111,11 +123,7 @@
             <div v-if="modeType==='1'">
               <label>部署命令：</label>
               <Input v-model="order" placeholder="例如：npm run build" style="width: 300px" />
-              <Tooltip
-                max-width="200"
-                content="填写项目打包指令，支持 npm 和 cnpm 指令。"
-                placement="right"
-              >
+              <Tooltip max-width="200" content="填写项目打包指令，支持 npm 和 cnpm 指令。" placement="right">
                 <Icon type="ios-help-circle-outline tip" size="22" />
               </Tooltip>
             </div>
@@ -222,17 +230,11 @@
                 <span @click="handleHelp" :class="isHelp?'active':''">关联 Git 仓库</span>
               </h3>
               <div class="tisi" v-if="isHelp">
-                <div>
-                  1、打开路径：
-                  <a
-                    href="http://10.0.86.12/"
-                    target="_blank"
-                  >本项目仓库 -> Settings -> Webhooks -> Add webhook</a>
-                </div>
+                <div>1、打开git：项目仓库 -> Settings -> Webhooks -> Add webhook</div>
                 <div>
                   2、在
                   <span class="code">Target URL</span> 中填入
-                  <span class="url">http://10.0.88.46:82/api/deploy/git</span> 地址
+                  <span class="url">{{$url}}/api/deploy/git</span> 地址
                 </div>
                 <div>
                   3、
@@ -241,20 +243,17 @@
                 </div>
                 <div>
                   4、在
-                  <span class="code">Secret</span> 中填入项目名称（与下面的所属项目保持一致）
+                  <span class="code">Secret</span> 中填入部署成功后返回的 Key 值。
                 </div>
                 <div>
                   5、
                   <span class="code">Trigger On</span>选择
                   <span class="select">Push Events</span>
                 </div>
-                <!-- <div>
-                  注意：另外需要在项目的
-                  <span class="code">vue.config.js</span> 文件中添加
-                  <span class="select">publicPath: './（部署目录）'</span> 配置项。
-                  例如：
-                  <span class="select">publicPath: './sc'</span>
-                </div>-->
+                <div>
+                  <span style="color:red">注意：</span>若项代码托管平台为GitHub时，在第 2 步中需要填入
+                  <span class="url">{{$url}}/api/deploy/git?key={{key?key:"返回的key值"}}</span> 地址。
+                </div>
               </div>
             </div>
           </div>
@@ -285,6 +284,10 @@
         <Button type="info" size="large" long @click="handleLoginModal">我要去注册</Button>
       </div>
     </Modal>
+    <!-- 秘钥key -->
+    <!-- <Modal title="温馨提示" v-model="isKey" :mask-closable="false">
+      <p>秘钥key：{{key}}</p>
+    </Modal>-->
   </div>
 </template>
 <script>
@@ -303,7 +306,12 @@ export default {
       usre: {},
       content: {},
       isToLogin: false,
+      isKey: true,
+      key: "",
       // **********************************************
+      isPort: false,
+      port: "",
+      portArr: [],
       oneBugIsShow: false,
       isUpLoader: true,
       zzcAutoSubmit: false,
@@ -360,18 +368,14 @@ export default {
       } else {
         this.isEx = true;
       }
+    },
+    port(val) {
+      if (val) {
+        this.isPort = this.portArr.indexOf(val) > -1;
+      } else {
+        this.isPort = false;
+      }
     }
-    // projectName(val) {
-    // 	// if (val != this.itemData.projectName) {
-    // 	// 	this.version = "1.0.1";
-    // 	// 	this.options.query.version = this.version;
-    // 	// 	this.uid = "";
-    // 	// 	this.root = "";
-    // 	// } else {
-    // 	// 	this.isAddClear = true;
-    // 	// 	this.getBidData(this.itemData);
-    // 	// }
-    // }
   },
 
   mounted() {
@@ -381,11 +385,12 @@ export default {
     this.sideList = this.$store.state.variable.projectTitleArr;
 
     this.getMkdir();
-
+    this.checkPort();
     let project = this.$router.currentRoute.query;
 
     this.projectName = project.title;
-    if (this.projectName) {
+    this.key = project.bid;
+    if (this.key) {
       this.getProjectNameData();
     } else {
       this.handleClear();
@@ -400,6 +405,8 @@ export default {
       this.branch = "master";
       this.order = "npm run build";
       this.root = "";
+      this.port = "";
+      this.key = "";
       this.version = "1.0.1";
       this.versionVal = "1.0.1";
       this.options.query.version = "1.0.1";
@@ -416,7 +423,9 @@ export default {
       }
     },
     projectNameChange(e) {
-      this.projectName = e;
+      // console.log(e);
+      // this.projectName = e;
+      this.key = e;
       if (e) {
         this.getProjectNameData();
       }
@@ -425,7 +434,8 @@ export default {
     getProjectNameData() {
       this.$Message.destroy();
       let data = {
-        projectName: this.projectName,
+        // projectName: this.projectName,
+        key: this.key,
         accurate: 1, //精确匹配
         select: "one"
       };
@@ -477,6 +487,8 @@ export default {
       this.root = this.content.root;
       this.projectName = this.content.projectName;
       this.uid = this.content.bid;
+      this.port = this.content.port;
+      this.key = this.content.key;
       this.catalog = this.content.catalog;
     },
     // 上传完成
@@ -523,6 +535,18 @@ export default {
           console.log(error);
         });
     },
+    checkPort(port) {
+      this.$axios
+        .post("/api/deploy/port")
+        .then(res => {
+          let data = res.data.data;
+          data.push("82");
+          this.portArr = data;
+        })
+        .catch(function(error) {
+          console.log(error);
+        });
+    },
 
     // 静态部署
     handleSubmit() {
@@ -542,6 +566,13 @@ export default {
           });
           return;
         }
+        // if (!this.port) {
+        //   this.$Message["error"]({
+        //     background: true,
+        //     content: "请输入端口号！"
+        //   });
+        //   return;
+        // }
         if (!this.root) {
           this.$Message["error"]({
             background: true,
@@ -568,11 +599,13 @@ export default {
           projectName: this.projectName,
           author: this.author,
           authorId: this.usre.bid,
-          url: this.url ? this.url : "/assets/img/dt.png",
+          url: this.url ? this.url : "/images/dt.png",
           // idDeployment: this.idDeployment,
           root: this.root,
           version: this.version,
           uid: this.uid,
+          port: this.port,
+          key: this.key,
           // isNew: this.projectName === project.projectName,
           catalog: this.catalog ? this.catalog : this.dist,
           versionRoot: "./" + this.root + "/" + this.version,
@@ -584,7 +617,7 @@ export default {
           gitUrl: this.gitUrl, //git 地址
           branch: this.branch ? this.branch : "master", //git 分支
           order: this.order ? this.order : "npm run build", //部署命令
-          mode: this.modeType //模式  cnpm run build
+          mode: this.modeType //模式
         };
         this.$Message.loading({
           content: "项目部署中...",
@@ -595,29 +628,59 @@ export default {
           .then(res => {
             this.$Message.destroy();
             if (res.data.result) {
-              this.$Message["success"]({
-                background: true,
-                content: "此项目部署成功！"
-              });
+              // this.$Message["success"]({
+              //   background: true,
+              //   content: "此项目部署成功！"
+              // });
+              this.key = res.data.key;
               this.zzcAutoSubmit = false;
-              this.$router.push({
-                path: "/tablePage",
-                query: { title: this.projectName }
-              });
+              // this.handleClear();
+              if (this.modeType === "1") {
+                this.$Modal.success({
+                  title: "项目部署成功！",
+                  content: "秘钥Key：" + this.key,
+                  okText: "返回列表",
+                  cancelText: "关闭",
+                  onOk: () => {
+                    this.$router.push({
+                      path: "/tablePage",
+                      query: { bid: this.key }
+                    });
+                  },
+                  onCancel: () => {
+                    // this.$Message.info("Clicked cancel");
+                  }
+                });
+              } else {
+                this.$router.push({
+                  path: "/tablePage",
+                  query: { bid: this.key }
+                });
+              }
             } else {
-              this.$Message["error"]({
-                background: true,
-                content: "部署失败！"
+              // this.$Message["error"]({
+              //   background: true,
+              //   content: "部署失败！"
+              // });
+              this.$Message.destroy();
+              this.$Modal.error({
+                title: "异常提示",
+                content: "发生未知错误，部署失败！"
               });
               this.zzcAutoSubmit = false;
             }
           })
           .catch(error => {
             this.$Message.destroy();
-            this.$Message["error"]({
-              background: true,
+            // this.$Message["error"]({
+            //   background: true,
+            //   content: "部署路径出现问题，部署失败！"
+            // });
+            this.$Modal.error({
+              title: "异常提示",
               content: "部署路径出现问题，部署失败！"
             });
+            this.zzcAutoSubmit = false;
             console.log(error);
           });
       }
@@ -649,6 +712,13 @@ export default {
           });
           return;
         }
+        // if (!this.port) {
+        //   this.$Message["error"]({
+        //     background: true,
+        //     content: "请输入端口号！"
+        //   });
+        //   return;
+        // }
         if (!this.gitUrl) {
           this.$Message["error"]({
             background: true,
@@ -674,6 +744,7 @@ export default {
         let data = {
           gitUrl: this.gitUrl, //git 地址
           root: this.root,
+          port: this.port,
           branch: this.branch ? this.branch : "master", //git 分支
           order: this.order //部署命令
         };
@@ -692,15 +763,22 @@ export default {
               });
               this.handleInit(data);
             } else {
-              this.$Message["error"]({
-                background: true,
-                content: "项目拉取失败！"
+              this.$Message.destroy();
+              this.$Modal.error({
+                title: "异常提示",
+                content: "发生未知错误，项目拉取失败！"
               });
               this.zzcAutoSubmit = false;
             }
           })
           .catch(function(error) {
             console.log(error);
+            this.$Message.destroy();
+            this.$Modal.error({
+              title: "异常提示",
+              content: "发生未知错误，项目拉取失败！"
+            });
+            this.zzcAutoSubmit = false;
           });
       }
     },
@@ -722,15 +800,26 @@ export default {
             });
             this.handleBuild(data);
           } else {
-            this.$Message["error"]({
-              background: true,
-              content: "项目初始化失败！"
+            // this.$Message["error"]({
+            //   background: true,
+            //   content: "项目初始化失败！"
+            // });
+            this.$Message.destroy();
+            this.$Modal.error({
+              title: "异常提示",
+              content: "发生未知错误，项目初始化失败！"
             });
             this.zzcAutoSubmit = false;
           }
         })
-        .catch(function(error) {
+        .catch(error => {
           console.log(error);
+          this.$Message.destroy();
+          this.$Modal.error({
+            title: "异常提示",
+            content: "发生未知错误，项目初始化失败！"
+          });
+          this.zzcAutoSubmit = false;
         });
     },
     // 打包项目
@@ -752,15 +841,22 @@ export default {
             this.isUpLoader = false;
             this.handleSubmit();
           } else {
-            this.$Message["error"]({
-              background: true,
-              content: "项目打包失败！"
+            this.$Message.destroy();
+            this.$Modal.error({
+              title: "异常提示",
+              content: "发生未知错误，项目已打包失败！"
             });
             this.zzcAutoSubmit = false;
           }
         })
         .catch(function(error) {
           console.log(error);
+          this.$Message.destroy();
+          this.$Modal.error({
+            title: "异常提示",
+            content: "发生未知错误，项目已打包失败！"
+          });
+          this.zzcAutoSubmit = false;
         });
     },
     handleZzcAutoSubmit() {

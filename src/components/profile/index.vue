@@ -244,8 +244,6 @@ export default {
         });
     },
     handleFileSuccess(response, file, fileList) {
-      console.log(response);
-
       //   data.url = this.email;
       this.updateUser({ bid: this.bid, url: "/" + response.fileInfo.path });
     }

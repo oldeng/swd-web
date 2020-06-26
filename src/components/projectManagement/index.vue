@@ -10,8 +10,8 @@
             </div>
             <div class="header__info">
               <span>
-                <h2>部署列表</h2>
-                <p>这里将展示所有的{{$route.query.title}}项目，可以根据需求切换不同的版本进行部署发布。</p>
+                <h2>项目列表</h2>
+                <p>这里将展示所有的项目，可以根据需求对项目进行操作。</p>
               </span>
             </div>
           </div>
@@ -22,6 +22,13 @@
       <div>
         <div>
           <div class="content">
+            <Select v-model="key" style="width:300px" @on-change="handleGetData" clearable>
+              <Option
+                v-for="item in titleList"
+                :value="item.key"
+                :key="item.key"
+              >{{ item.projectName }}</Option>
+            </Select>
             <Table border :columns="columns" :data="content">
               <template slot-scope="{ row }" slot="author">
                 <div class="author">
@@ -47,14 +54,18 @@
                 </Tooltip>
               </template>
               <template slot-scope="{ row }" slot="webUrl">
-                <span
+                <p>
+                  <i class="yuandian" :style="{ background: row.idDeployment=='yes'?'cornflowerblue':'#ccc'}"></i>
+                  <span>{{row.port?row.port:"无端口号"}}</span>
+                </p>
+                <!-- <span
                   v-if="row.idDeployment=='yes'"
                   class="copy1"
                   v-clipboard:copy="row.href"
                   v-clipboard:success="onCopy"
                   v-clipboard:error="onError"
                 >复制链接</span>
-                <span v-else class="copy2">复制链接</span>
+                <span v-else class="copy2">复制链接</span>-->
               </template>
               <template slot-scope="{ row }" slot="mode">
                 <span>{{row.mode!='1'?'静态部署':'自动部署'}}</span>
@@ -73,7 +84,7 @@
                     type="error"
                     size="small"
                     @click="handleDelecte(row)"
-                      :disabled="row.idDeployment=='yes'"
+                    :disabled="row.idDeployment=='yes'"
                   >删除</Button>
                 </div>
               </template>
@@ -132,6 +143,8 @@ export default {
     total: 10,
     isModel: false,
     modal_loading: false,
+    key: "",
+    titleList: [],
     columns: [
       {
         title: "项目名称",
@@ -155,25 +168,29 @@ export default {
         slot: "idDeployment"
       },
       {
+        title: "端口号",
+        width: 110,
+        slot: "webUrl"
+      },
+
+      {
         title: "描述",
         // width: 170,
         slot: "remark"
       },
+
       {
         title: "创建时间",
         width: 170,
         key: "time"
       },
+
       {
         title: "部署模式",
         width: 100,
         slot: "mode"
       },
-      {
-        title: "访问链接",
-        width: 110,
-        slot: "webUrl"
-      },
+
       {
         title: "操作",
         slot: "action",
@@ -227,6 +244,9 @@ export default {
     //   this.isOpen = false;
     // });
     // this.getUser();
+    this.titleList = this.$store.state.variable.projectTitleArr;
+    console.log(this.titleList);
+
     this.user = this.$store.state.variable.info;
     this.handleGetData();
   },
@@ -236,9 +256,7 @@ export default {
       let data = {
         pageNo: this.pageNo,
         pageSize: this.pageSize,
-        accurate: 1, //精确匹配
-        // projectName: this.$route.query.title,
-        key: this.$route.query.bid
+        key: this.key
       };
       this.$axios
         .get("/api/deploy/edition/get", { params: data })
@@ -294,7 +312,7 @@ export default {
           catalog: e.catalog,
           bid: e.bid,
           projectName: e.projectName,
-          key: e.key,
+          key: e.key
           // uidArr: JSON.stringify(uidArr)
         };
         this.$axios
@@ -444,11 +462,17 @@ export default {
   }
 };
 </script>
-<style lang="scss" >
-.ivu-table {
+<style lang="scss" scoped>
+/deep/ .ivu-table {
   width: 100%;
 }
-</style>
-<style lang="scss" scoped>
+.yuandian {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 100%;
+  margin-right: 5px;
+ 
+}
 @import "./index.scss";
 </style>

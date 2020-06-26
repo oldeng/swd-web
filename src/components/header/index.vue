@@ -3,7 +3,7 @@
     <div>
       <div class="he-left">
         <!-- <h1>Web Deploy</h1> -->
-        <h1></h1>
+        <h1 @click="handleRouter"></h1>
         <Menu mode="horizontal" :theme="theme" active-name="1">
           <!-- <Input v-model="value14" placeholder="Enter something..." clearable style="width: 100px" /> -->
           <MenuItem name="1" to="/">
@@ -12,6 +12,9 @@
 
           <MenuItem name="2" to="/addpage">
             <Icon type="md-add" size="20" />创建项目
+          </MenuItem>
+          <MenuItem name="3" to="/projectmanage">
+            <Icon type="ios-list-box-outline" size="20" />项目列表
           </MenuItem>
           <MenuItem name="3" to="/profile">
             <Icon type="ios-person" size="24" />个人中心
@@ -33,20 +36,23 @@
           <MenuItem name="4" to="/docs">
             <Icon type="ios-book" size="20" />说明文档
           </MenuItem>
-          <!-- <MenuItem name="5">
-            <Badge :count="2">
-              <Icon type="ios-notifications-outline" size="24"></Icon>
-            </Badge>消息
-          </MenuItem>-->
+          <MenuItem name="5">
+            <!-- <Badge :count="2"> -->
+            <span @click="handleIssues">
+              <Icon type="ios-information-circle-outline" size="20"></Icon>反馈（Issues）
+            </span>
+
+            <!-- </Badge>消息 -->
+          </MenuItem>
         </Menu>
       </div>
-      <Input
+      <!-- <Input
         v-model="inputVal"
         search
         @on-search="handleOnSearch"
         placeholder="查找项目..."
         style="width: 200px"
-      />
+      />-->
       <Dropdown class="dropdown-menu">
         <div class="heade-menu">
           <img :src="user.url" />
@@ -84,6 +90,15 @@ export default {
     // });
   },
   methods: {
+    handleIssues() {
+      let win = window.open();
+      win.opener = null;
+      win.location = "https://github.com/zlluGitHub/web-deploy/issues";
+      win.target = "_blank";
+    },
+    handleRouter() {
+      this.$router.push({ path: "/" });
+    },
     handleOnSearch() {
       this.$event.emit("input", this.inputVal);
     },

@@ -1,7 +1,7 @@
 const state = {
-  projectTitleArr:[],
+  projectTitleArr: [],
   info: null,
-  itemData:{}
+  itemData: {}
 }
 const mutations = {
   setProjectTitleArr(state, data) {
