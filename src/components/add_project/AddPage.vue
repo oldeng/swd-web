@@ -404,7 +404,7 @@ export default {
   methods: {
     isCheckIP() {
       let href = window.location.href;
-      if (href.indexOf("//localhost") > -1 || href.split(".").length >= 5) {
+      if (href.indexOf("//localhost") > -1 || href.split(".").length >= 4) {
         return true;
       } else {
         return false;

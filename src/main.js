@@ -23,10 +23,13 @@ Vue.use(uploader)
 // import apiConfig from '../config/api.config.js'
 import axios from 'axios'
 import qs from 'qs'
-axios.defaults.baseURL = process.env.VUE_APP_URL;
-Vue.prototype.$url = process.env.VUE_APP_URL;
-Vue.prototype.$axios = axios    //全局注册，使用方法为:this.$axios
-Vue.prototype.$qs = qs           //全局注册，使用方法为:this.$qs
+let baseURL = process.env.VUE_APP_URL ? process.env.VUE_APP_URL : window.location.href
+console.log(baseURL);
+
+axios.defaults.baseURL = baseURL;
+Vue.prototype.$url = baseURL;
+Vue.prototype.$axios = axios;    //全局注册，使用方法为:this.$axios
+Vue.prototype.$qs = qs;           //全局注册，使用方法为:this.$qs
 
 //全局引入模拟数据
 // import mock from './mock'
