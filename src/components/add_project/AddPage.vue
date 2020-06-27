@@ -91,7 +91,7 @@
             </Tooltip>
             <span v-if="isEx" class="isEx">此目录已存在，请重新输入！</span>
           </div>
-          <div v-if="!isAddClear">
+          <div v-if="!isAddClear&&isIp">
             <label>部署端口：</label>
             <Input v-model="port" placeholder="例如：8080 （选填）" style="width: 300px" />
             <Tooltip max-width="200" content="默认：本系统端口号/部署目录/index.html" placement="right">
@@ -252,7 +252,9 @@
                 </div>
                 <div>
                   <span style="color:red">注意：</span>若项代码托管平台为GitHub时，在第 2 步中需要填入
-                  <span class="url">{{$url}}/api/deploy/git?key={{key?key:"返回的key值"}}</span> 地址。
+                  <span
+                    class="url"
+                  >{{$url}}/api/deploy/git?key={{key?key:"返回的key值"}}</span> 地址。
                 </div>
               </div>
             </div>
@@ -307,6 +309,7 @@ export default {
       content: {},
       isToLogin: false,
       isKey: true,
+      isIp: false,
       key: "",
       // **********************************************
       isPort: false,
@@ -383,6 +386,7 @@ export default {
     this.author = this.usre.name;
     this.url = this.usre.url;
     this.sideList = this.$store.state.variable.projectTitleArr;
+    this.isIp = this.isCheckIP();
 
     this.getMkdir();
     this.checkPort();
@@ -398,6 +402,14 @@ export default {
     }
   },
   methods: {
+    isCheckIP() {
+      let href = window.location.href;
+      if (href.indexOf("//localhost") > -1 || href.split(".").length >= 5) {
+        return true;
+      } else {
+        return false;
+      }
+    },
     handleClear() {
       this.bid = "";
       this.dist = "dist";

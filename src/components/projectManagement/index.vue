@@ -55,7 +55,11 @@
               </template>
               <template slot-scope="{ row }" slot="webUrl">
                 <p>
-                  <i class="yuandian" :style="{ background: row.idDeployment=='yes'?'cornflowerblue':'#ccc'}"></i>
+                  <i
+                    v-if="row.port"
+                    class="yuandian"
+                    :style="{ background: row.idDeployment=='yes'?'cornflowerblue':'#ccc'}"
+                  ></i>
                   <span>{{row.port?row.port:"无端口号"}}</span>
                 </p>
                 <!-- <span
@@ -172,7 +176,11 @@ export default {
         width: 110,
         slot: "webUrl"
       },
-
+      {
+        title: "部署模式",
+        width: 100,
+        slot: "mode"
+      },
       {
         title: "描述",
         // width: 170,
@@ -183,12 +191,6 @@ export default {
         title: "创建时间",
         width: 170,
         key: "time"
-      },
-
-      {
-        title: "部署模式",
-        width: 100,
-        slot: "mode"
       },
 
       {
@@ -472,7 +474,6 @@ export default {
   height: 10px;
   border-radius: 100%;
   margin-right: 5px;
- 
 }
 @import "./index.scss";
 </style>

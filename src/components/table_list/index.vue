@@ -73,7 +73,7 @@
                     type="error"
                     size="small"
                     @click="handleDelecte(row)"
-                      :disabled="row.idDeployment=='yes'"
+                    :disabled="row.idDeployment=='yes'"
                   >删除</Button>
                 </div>
               </template>
@@ -155,6 +155,11 @@ export default {
         slot: "idDeployment"
       },
       {
+        title: "部署模式",
+        width: 100,
+        slot: "mode"
+      },
+      {
         title: "描述",
         // width: 170,
         slot: "remark"
@@ -164,11 +169,7 @@ export default {
         width: 170,
         key: "time"
       },
-      {
-        title: "部署模式",
-        width: 100,
-        slot: "mode"
-      },
+
       {
         title: "访问链接",
         width: 110,
@@ -294,7 +295,7 @@ export default {
           catalog: e.catalog,
           bid: e.bid,
           projectName: e.projectName,
-          key: e.key,
+          key: e.key
           // uidArr: JSON.stringify(uidArr)
         };
         this.$axios
