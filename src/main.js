@@ -23,9 +23,7 @@ Vue.use(uploader)
 // import apiConfig from '../config/api.config.js'
 import axios from 'axios'
 import qs from 'qs'
-let baseURL = process.env.VUE_APP_URL ? process.env.VUE_APP_URL : window.location.href
-console.log(baseURL);
-
+let baseURL = process.env.VUE_APP_URL ? process.env.VUE_APP_URL : window.location.origin;
 axios.defaults.baseURL = baseURL;
 Vue.prototype.$url = baseURL;
 Vue.prototype.$axios = axios;    //全局注册，使用方法为:this.$axios
