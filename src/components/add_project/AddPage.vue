@@ -97,7 +97,8 @@
             <Tooltip max-width="200" content="默认：本系统端口号/部署目录/index.html" placement="right">
               <Icon type="ios-help-circle-outline tip" size="22" :class="[isEx?'isEx':'']" />
             </Tooltip>
-            <span v-if="isPort" class="isEx">此端口已存在，请重新输入！</span>
+            <span v-if="isPort==0" class="isEx">此端口已存在，请重新输入！</span>
+            <span v-if="isPort==-2" class="isEx">端口号格式错误，请正确输入端口号！</span>
           </div>
           <div v-if="!isAddClear">
             <label>代理地址：</label>
@@ -105,7 +106,10 @@
             <Tooltip max-width="200" content="默认：若需解决跨域问题，可在这里填入需要代理的接口。" placement="right">
               <Icon type="ios-help-circle-outline tip" size="22" :class="[isEx?'isEx':'']" />
             </Tooltip>
-            <span class="tip-text" v-if="target">将部署项目的 baseURL 改为：<i>{{$url+'/'+root}}</i></span>
+            <span class="tip-text" v-if="target">
+              将部署项目的 baseURL 改为：
+              <i>{{baseUrl+'/'+root}}</i>
+            </span>
           </div>
           <div v-if="modeType==='1'">
             <label>Git 地址：</label>
@@ -321,9 +325,9 @@ export default {
       key: "",
       target: "",
       // **********************************************
-      isPort: false,
+      isPort: 1,
       port: "",
-      portArr: [],
+      // portArr: [],
       oneBugIsShow: false,
       isUpLoader: true,
       zzcAutoSubmit: false,
@@ -349,6 +353,7 @@ export default {
         uploading: "正在上传...",
         waiting: "等待中..."
       },
+      baseUrl: "",
       projectName: "",
       idDeployment: "yes",
       remark: "",
@@ -382,11 +387,16 @@ export default {
       }
     },
     port(val) {
-      if (val) {
-        this.isPort = this.portArr.indexOf(val) > -1;
-      } else {
-        this.isPort = false;
-      }
+      this.checkPort(val);
+      let origin = window.location.origin;
+      this.baseUrl = this.port
+        ? origin.slice(0, origin.lastIndexOf(":")) + ":" + this.port
+        : this.$url;
+      // if (val) {
+      //   this.isPort = this.portArr.indexOf(val) > -1;
+      // } else {
+      //   this.isPort = false;
+      // }
     }
   },
 
@@ -397,8 +407,13 @@ export default {
     this.sideList = this.$store.state.variable.projectTitleArr;
     this.isIp = this.isCheckIP();
 
+    let origin = window.location.origin;
+    this.baseUrl = this.port
+      ? origin.slice(0, origin.lastIndexOf(":")) + ":" + this.port
+      : this.$url;
+
     this.getMkdir();
-    this.checkPort();
+    // this.checkPort();
     let project = this.$router.currentRoute.query;
 
     this.projectName = project.title;
@@ -560,11 +575,16 @@ export default {
     },
     checkPort(port) {
       this.$axios
-        .post("/api/deploy/port")
+        .post("/api/service/operation/test", this.$qs.stringify({ port }))
         .then(res => {
-          let data = res.data.data;
-          // data.push("82");
-          this.portArr = data;
+          if (res.data.result) {
+            this.isPort = res.data.state;
+          } else {
+            this.isPort = -2;
+          }
+          // let data = res.data.data;
+          // // data.push("82");
+          // this.portArr = data;
         })
         .catch(function(error) {
           console.log(error);
