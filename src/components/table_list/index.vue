@@ -37,6 +37,19 @@
               <template slot-scope="{ row }" slot="version">
                 <span style="color: #FAB67B;">{{ row.version }}</span>
               </template>
+               <template slot-scope="{ row }" slot="target">
+                  <span>{{row.target?row.target:"暂无代理"}}</span>
+              </template>
+               <template slot-scope="{ row }" slot="port">
+                <p>
+                  <i
+                    v-if="row.port"
+                    class="yuandian"
+                    :style="{ background: row.idDeployment=='yes'?'cornflowerblue':'#ccc'}"
+                  ></i>
+                  <span>{{row.port?row.port:"无端口号"}}</span>
+                </p>
+              </template>
               <template slot-scope="{ row }" slot="idDeployment">
                 <span v-if="row.idDeployment=='yes'" style="color: #6CD1A7;">已部署</span>
                 <span v-else style="color: #EC6C73;">未部署</span>
@@ -146,13 +159,23 @@ export default {
       },
       {
         title: "版本号",
-        width: 100,
+        width: 80,
         slot: "version"
+      },
+       {
+        title: "端口号",
+        width: 100,
+        slot: "port"
       },
       {
         title: "状态",
         width: 80,
         slot: "idDeployment"
+      },
+       {
+        title: "代理地址",
+        // width: 110,
+        slot: "target"
       },
       {
         title: "部署模式",

@@ -33,12 +33,16 @@
             <MenuItem name="3-5">流失用户</MenuItem>
           </MenuGroup>
           </Submenu>-->
-          <MenuItem name="4" to="/docs">
-            <Icon type="ios-book" size="20" />说明文档
+          <!-- <MenuItem name="4" to="/docs"> -->
+          <MenuItem name="4">
+             <span @click="handleUrl('https://zllugithub.github.io/web-deploy/')">
+              <!-- <Icon type="ios-information-circle-outline" size="20"></Icon>反馈（Issues） -->
+                <Icon type="ios-book" size="20" />说明文档
+            </span>
           </MenuItem>
           <MenuItem name="5">
             <!-- <Badge :count="2"> -->
-            <span @click="handleIssues">
+            <span @click="handleUrl('https://github.com/zlluGitHub/web-deploy/issues')">
               <Icon type="ios-information-circle-outline" size="20"></Icon>反馈（Issues）
             </span>
 
@@ -90,10 +94,10 @@ export default {
     // });
   },
   methods: {
-    handleIssues() {
+    handleUrl(url) {
       let win = window.open();
       win.opener = null;
-      win.location = "https://github.com/zlluGitHub/web-deploy/issues";
+      win.location = url;
       win.target = "_blank";
     },
     handleRouter() {

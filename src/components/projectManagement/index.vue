@@ -53,6 +53,9 @@
                   <span class="nowrap">{{row.remark}}</span>
                 </Tooltip>
               </template>
+              <template slot-scope="{ row }" slot="target">
+                  <span>{{row.target?row.target:"暂无代理"}}</span>
+              </template>
               <template slot-scope="{ row }" slot="webUrl">
                 <p>
                   <i
@@ -158,12 +161,12 @@ export default {
 
       {
         title: "发布者",
-        width: 160,
+        width: 150,
         slot: "author"
       },
       {
         title: "版本号",
-        width: 100,
+        width: 80,
         slot: "version"
       },
       {
@@ -173,8 +176,13 @@ export default {
       },
       {
         title: "端口号",
-        width: 110,
+        width: 100,
         slot: "webUrl"
+      },
+      {
+        title: "代理地址",
+        // width: 110,
+        slot: "target"
       },
       {
         title: "部署模式",
@@ -468,12 +476,6 @@ export default {
 /deep/ .ivu-table {
   width: 100%;
 }
-.yuandian {
-  display: inline-block;
-  width: 10px;
-  height: 10px;
-  border-radius: 100%;
-  margin-right: 5px;
-}
+
 @import "./index.scss";
 </style>

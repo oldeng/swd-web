@@ -99,6 +99,14 @@
             </Tooltip>
             <span v-if="isPort" class="isEx">此端口已存在，请重新输入！</span>
           </div>
+          <div v-if="!isAddClear">
+            <label>代理地址：</label>
+            <Input v-model="target" placeholder="例如：http://127.0.0.1 （选填）" style="width: 300px" />
+            <Tooltip max-width="200" content="默认：若需解决跨域问题，可在这里填入需要代理的接口。" placement="right">
+              <Icon type="ios-help-circle-outline tip" size="22" :class="[isEx?'isEx':'']" />
+            </Tooltip>
+            <span class="tip-text" v-if="target">将部署项目的 baseURL 改为：<i>{{$url+'/'+root}}</i></span>
+          </div>
           <div v-if="modeType==='1'">
             <label>Git 地址：</label>
             <Input
@@ -311,6 +319,7 @@ export default {
       isKey: true,
       isIp: false,
       key: "",
+      target: "",
       // **********************************************
       isPort: false,
       port: "",
@@ -417,6 +426,7 @@ export default {
       this.branch = "master";
       this.order = "npm run build";
       this.root = "";
+      this.target = "";
       this.port = "";
       this.key = "";
       this.version = "1.0.1";
@@ -475,6 +485,7 @@ export default {
     setData() {
       this.gitUrl = this.content.gitUrl; //git 地址
       this.root = this.content.root;
+      this.target = this.content.target;
       this.branch = this.content.branch; //git 分支
       this.order = this.content.order; //部署命令
       this.versionVal = this.content.version;
@@ -552,7 +563,7 @@ export default {
         .post("/api/deploy/port")
         .then(res => {
           let data = res.data.data;
-          data.push("82");
+          // data.push("82");
           this.portArr = data;
         })
         .catch(function(error) {
@@ -614,6 +625,7 @@ export default {
           url: this.url ? this.url : "/images/dt.png",
           // idDeployment: this.idDeployment,
           root: this.root,
+          target: this.target,
           version: this.version,
           uid: this.uid,
           port: this.port,
