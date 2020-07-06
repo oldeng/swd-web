@@ -50,10 +50,10 @@
         <div class="warp">
           <!-- 所属项目 -->
           <div v-if="isAddClear">
-            <label>所属项目：</label>
+            <label><i class="star">*</i> 所属项目：</label>
             <Select
+            v-model="key"
               style="width:300px;margin-right:15px;"
-              v-model="key"
               @on-change="projectNameChange"
             >
               <Option
@@ -70,7 +70,7 @@
             />
           </div>
           <div v-else>
-            <label>所属项目：</label>
+            <label><i class="star">*</i>所属项目：</label>
             <Input
               v-model="projectName"
               placeholder="请输入新项目名称..."
@@ -84,7 +84,7 @@
             />
           </div>
           <div v-if="!isAddClear">
-            <label>部署目录：</label>
+            <label><i class="star">*</i>部署目录：</label>
             <Input v-model="root" placeholder="例如：dist" style="width: 300px" />
             <Tooltip max-width="200" content="指部署到服务器上的目录，也就是一级目录。" placement="right">
               <Icon type="ios-help-circle-outline tip" size="22" :class="[isEx?'isEx':'']" />
@@ -112,7 +112,7 @@
             </span>
           </div>
           <div v-if="modeType==='1'">
-            <label>Git 地址：</label>
+            <label><i class="star">*</i>Git 地址：</label>
             <Input
               v-model="gitUrl"
               placeholder="例如：http://10.0.86.12/zll/science.git"
@@ -124,7 +124,7 @@
           </div>
           <transition name="fade">
             <div v-if="modeType==='1'">
-              <label>项目分支：</label>
+              <label><i class="star">*</i>项目分支：</label>
               <Input v-model="branch" placeholder="默认：master" style="width: 300px" />
               <Tooltip max-width="200" content="此处填写 gitLab 仓库分支，默认 master 主分支。" placement="right">
                 <Icon type="ios-help-circle-outline tip" size="22" />
@@ -133,7 +133,7 @@
           </transition>
           <transition name="fade">
             <div v-if="modeType==='1'">
-              <label>部署命令：</label>
+              <label><i class="star">*</i>部署命令：</label>
               <Input v-model="order" placeholder="例如：npm run build" style="width: 300px" />
               <Tooltip max-width="200" content="填写项目打包指令，支持 npm 和 cnpm 指令。" placement="right">
                 <Icon type="ios-help-circle-outline tip" size="22" />
@@ -142,7 +142,7 @@
           </transition>
           <transition name="fade">
             <div v-if="modeType==='1'">
-              <label>打包目录：</label>
+              <label><i class="star">*</i>打包目录：</label>
               <Input v-model="dist" placeholder="默认：dist" style="width: 300px" />
               <Tooltip max-width="200" content="此处填写此项目的打包目录。" placement="right">
                 <Icon type="ios-help-circle-outline tip" size="22" />
@@ -151,7 +151,7 @@
           </transition>
           <transition name="fade">
             <div v-if="modeType==='0'">
-              <label>部署文件：</label>
+              <label><i class="star">*</i>部署文件：</label>
               <uploader
                 :key="uploader_key"
                 :options="options"
@@ -462,7 +462,9 @@ export default {
     projectNameChange(e) {
       // console.log(e);
       // this.projectName = e;
-      this.key = e;
+      // console.log(e);
+      
+      // this.key = e;
       if (e) {
         this.getProjectNameData();
       }
