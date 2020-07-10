@@ -203,3 +203,12 @@ section > div {
         color: #2d8cf0;
     }
 }
+.rz-box{
+    padding: 0 10px;
+    .error{
+        color: red;
+    }
+    .success{
+        color: #19be6b;
+    }
+}

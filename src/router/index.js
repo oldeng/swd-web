@@ -12,7 +12,11 @@ export default new Router({
       name: 'login',
       component: () => import('../components/login/index.vue')
     },
-   
+    {
+      path: '/shell',
+      name: 'shell',
+      component: () => import('../components/shell/index.vue')
+    },
     {
       path: '/',
       name: 'index',
@@ -44,6 +48,7 @@ export default new Router({
           name: 'projectManagement',
           component: () => import('../components/projectManagement/index.vue')
         },
+       
         {
           path: '/profile',
           name: 'profile',

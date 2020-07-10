@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <transition name="fade" mode="out-in">
-      <router-view/>
+      <router-view />
     </transition>
   </div>
 </template>
@@ -25,6 +25,8 @@ export default {
 
     //在页面刷新时将vuex里的信息保存到sessionStorage里
     window.addEventListener("beforeunload", () => {
+      this.$socket.close();
+      this.$socket.disconnect();
       sessionStorage.setItem("store", JSON.stringify(this.$store.state));
     });
   }

@@ -63,6 +63,9 @@ router.beforeEach((to, from, next) => {
   // }
 });
 
+import io from "socket.io-client";
+Vue.prototype.$socket = io(baseURL + "/news");
+
 new Vue({
   router,
   store,

@@ -255,7 +255,7 @@ export default {
     // });
     // this.getUser();
     this.titleList = this.$store.state.variable.projectTitleArr;
-    console.log(this.titleList);
+    // console.log(this.titleList);
 
     this.user = this.$store.state.variable.info;
     this.handleGetData();
@@ -266,8 +266,11 @@ export default {
       let data = {
         pageNo: this.pageNo,
         pageSize: this.pageSize,
-        key: this.key
+        // key: this.key
       };
+      if (this.key) {
+        data.key = this.key
+      }
       this.$axios
         .get("/api/deploy/edition/get", { params: data })
         .then(res => {

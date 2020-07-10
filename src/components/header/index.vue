@@ -16,8 +16,12 @@
           <MenuItem name="3" to="/projectmanage">
             <Icon type="ios-list-box-outline" size="20" />项目列表
           </MenuItem>
-          <MenuItem name="3" to="/profile">
+          <MenuItem name="4" to="/profile">
             <Icon type="ios-person" size="24" />个人中心
+          </MenuItem>
+          <!-- <MenuItem name="3"  @click.native="handleShell"> -->
+          <MenuItem name="5"  to="/shell">
+            <Icon type="md-code-working" size="24" />命令行
           </MenuItem>
           <!-- <Submenu name="3">
           <template slot="title">
@@ -34,13 +38,13 @@
           </MenuGroup>
           </Submenu>-->
           <!-- <MenuItem name="4" to="/docs"> -->
-          <MenuItem name="4">
-             <span @click="handleUrl('https://zllugithub.github.io/web-deploy/')">
+          <MenuItem name="6">
+            <span @click="handleUrl('https://zllugithub.github.io/web-deploy/')">
               <!-- <Icon type="ios-information-circle-outline" size="20"></Icon>反馈（Issues） -->
-                <Icon type="ios-book" size="20" />说明文档
+              <Icon type="ios-book" size="20" />说明文档
             </span>
           </MenuItem>
-          <MenuItem name="5">
+          <MenuItem name="7">
             <!-- <Badge :count="2"> -->
             <span @click="handleUrl('https://github.com/zlluGitHub/web-deploy/issues')">
               <Icon type="ios-information-circle-outline" size="20"></Icon>反馈（Issues）
@@ -94,6 +98,9 @@ export default {
     // });
   },
   methods: {
+    // handleShell() {
+    //   this.$event.emit("isShell", true);
+    // },
     handleUrl(url) {
       let win = window.open();
       win.opener = null;

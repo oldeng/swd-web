@@ -199,6 +199,13 @@ export default {
     // isToLogin: false,
     user: {}
   }),
+  // created() {
+  //   let shell = window.sessionStorage.getItem("shell");
+  //   if (shell == "yes") {
+  //     window.sessionStorage.removeItem("shell");
+  //     // window.location.reload();
+  //   }
+  // },
   mounted() {
     this.$Message.destroy();
     this.user = this.$store.state.variable.info;

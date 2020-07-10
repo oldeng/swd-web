@@ -4,20 +4,29 @@
     <transition name="fade" mode="out-in">
       <router-view />
     </transition>
-
-    <!-- <Footer /> -->
+    <!-- <Shell v-if="isShowShell" /> -->
   </div>
 </template>
 
 <script>
-// import Footer from "./public/Footer";
+// import Shell from "./shell/index";
 import Header from "./header/index.vue";
 export default {
   name: "mains",
   components: {
-    // Footer,
+    // Shell,
     Header
-  }
+  },
+  // data() {
+  //   // return {
+  //   //   isShowShell: false
+  //   // };
+  // },
+  // created() {
+  //   // this.$event.on("isShell", state => {
+  //   //   this.isShowShell = state;
+  //   // });
+  // }
 };
 </script>
 

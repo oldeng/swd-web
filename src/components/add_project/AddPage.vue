@@ -50,9 +50,11 @@
         <div class="warp">
           <!-- 所属项目 -->
           <div v-if="isAddClear">
-            <label><i class="star">*</i> 所属项目：</label>
+            <label>
+              <i class="star">*</i> 所属项目：
+            </label>
             <Select
-            v-model="key"
+              v-model="key"
               style="width:300px;margin-right:15px;"
               @on-change="projectNameChange"
             >
@@ -70,7 +72,9 @@
             />
           </div>
           <div v-else>
-            <label><i class="star">*</i>所属项目：</label>
+            <label>
+              <i class="star">*</i>所属项目：
+            </label>
             <Input
               v-model="projectName"
               placeholder="请输入新项目名称..."
@@ -84,7 +88,9 @@
             />
           </div>
           <div v-if="!isAddClear">
-            <label><i class="star">*</i>部署目录：</label>
+            <label>
+              <i class="star">*</i>部署目录：
+            </label>
             <Input v-model="root" placeholder="例如：dist" style="width: 300px" />
             <Tooltip max-width="200" content="指部署到服务器上的目录，也就是一级目录。" placement="right">
               <Icon type="ios-help-circle-outline tip" size="22" :class="[isEx?'isEx':'']" />
@@ -100,7 +106,7 @@
             <span v-if="isPort==0" class="isEx">此端口已存在，请重新输入！</span>
             <span v-if="isPort==-2" class="isEx">端口号格式错误，请正确输入端口号！</span>
           </div>
-          <div v-if="!isAddClear">
+          <div>
             <label>代理地址：</label>
             <Input v-model="target" placeholder="例如：http://127.0.0.1 （选填）" style="width: 300px" />
             <Tooltip max-width="200" content="默认：若需解决跨域问题，可在这里填入需要代理的接口。" placement="right">
@@ -112,7 +118,9 @@
             </span>
           </div>
           <div v-if="modeType==='1'">
-            <label><i class="star">*</i>Git 地址：</label>
+            <label>
+              <i class="star">*</i>Git 地址：
+            </label>
             <Input
               v-model="gitUrl"
               placeholder="例如：http://10.0.86.12/zll/science.git"
@@ -124,7 +132,9 @@
           </div>
           <transition name="fade">
             <div v-if="modeType==='1'">
-              <label><i class="star">*</i>项目分支：</label>
+              <label>
+                <i class="star">*</i>项目分支：
+              </label>
               <Input v-model="branch" placeholder="默认：master" style="width: 300px" />
               <Tooltip max-width="200" content="此处填写 gitLab 仓库分支，默认 master 主分支。" placement="right">
                 <Icon type="ios-help-circle-outline tip" size="22" />
@@ -133,7 +143,9 @@
           </transition>
           <transition name="fade">
             <div v-if="modeType==='1'">
-              <label><i class="star">*</i>部署命令：</label>
+              <label>
+                <i class="star">*</i>部署命令：
+              </label>
               <Input v-model="order" placeholder="例如：npm run build" style="width: 300px" />
               <Tooltip max-width="200" content="填写项目打包指令，支持 npm 和 cnpm 指令。" placement="right">
                 <Icon type="ios-help-circle-outline tip" size="22" />
@@ -142,7 +154,9 @@
           </transition>
           <transition name="fade">
             <div v-if="modeType==='1'">
-              <label><i class="star">*</i>打包目录：</label>
+              <label>
+                <i class="star">*</i>打包目录：
+              </label>
               <Input v-model="dist" placeholder="默认：dist" style="width: 300px" />
               <Tooltip max-width="200" content="此处填写此项目的打包目录。" placement="right">
                 <Icon type="ios-help-circle-outline tip" size="22" />
@@ -151,7 +165,9 @@
           </transition>
           <transition name="fade">
             <div v-if="modeType==='0'">
-              <label><i class="star">*</i>部署文件：</label>
+              <label>
+                <i class="star">*</i>部署文件：
+              </label>
               <uploader
                 :key="uploader_key"
                 :options="options"
@@ -302,10 +318,15 @@
     <!-- <Modal title="温馨提示" v-model="isKey" :mask-closable="false">
       <p>秘钥key：{{key}}</p>
     </Modal>-->
+    <!-- 部署日志信息 -->
+    <Modal title="部署日志" v-model="isRizhi" scrollable :mask-closable="false" :footer-hide="true">
+      <div class="rz-box"></div>
+    </Modal>
   </div>
 </template>
 <script>
 import Decorate from "../header/decorate";
+// import io from "socket.io-client";
 export default {
   components: {
     Decorate
@@ -320,10 +341,14 @@ export default {
       usre: {},
       content: {},
       isToLogin: false,
+      isRizhi: false,
+      socket: null,
       isKey: true,
       isIp: false,
       key: "",
       target: "",
+
+      isClickBushu: false,
       // **********************************************
       isPort: 1,
       port: "",
@@ -386,6 +411,13 @@ export default {
         this.isEx = true;
       }
     },
+    // isRizhi(val) {
+    //   if (!val) {
+    //     this.socket.close();
+    //     this.socket.disconnect();
+    //     // this.socket = null;
+    //   }
+    // },
     port(val) {
       this.checkPort(val);
       let origin = window.location.origin;
@@ -424,8 +456,32 @@ export default {
       this.handleClear();
       this.isAddClear = false;
     }
+    // this.handleBuShuRiZhi();
   },
   methods: {
+    handleBuShuRiZhi() {
+      // if (this.socket) {
+      //   this.socket.close();
+      //   this.socket.disconnect();
+      //   // this.socket = null;
+      // }
+      // this.socket = io.connect(this.$url + "/news"); //连接聊天室的io服务器 io服务器的根地址
+      //当服务器广播消息时，触发message事件，消息内容在回调函数中
+      // this.socket.off("message");
+      this.isClickBushu = true;
+      this.$socket.on("message", function(mm) {
+        let rzBox = document.querySelector(".rz-box");
+        let p = document.createElement("p");
+        p.innerText = `> ` + mm;
+        if (mm.indexOf("rror") > -1) {
+          p.style.cssText = "color:red;";
+        } else if (mm.indexOf("ucces") > -1) {
+          p.style.cssText = "color:#19be6b;";
+        }
+        rzBox.appendChild(p);
+      });
+      this.isRizhi = true;
+    },
     isCheckIP() {
       let href = window.location.href;
       if (href.indexOf("//localhost") > -1 || href.split(".").length >= 4) {
@@ -463,7 +519,7 @@ export default {
       // console.log(e);
       // this.projectName = e;
       // console.log(e);
-      
+
       // this.key = e;
       if (e) {
         this.getProjectNameData();
@@ -685,18 +741,36 @@ export default {
                 this.$Modal.success({
                   title: "项目部署成功！",
                   content: "秘钥Key：" + this.key,
-                  okText: "返回列表",
-                  cancelText: "关闭",
+                  okText: "确定",
                   onOk: () => {
-                    this.$router.push({
-                      path: "/tablePage",
-                      query: { bid: this.key }
-                    });
-                  },
-                  onCancel: () => {
-                    // this.$Message.info("Clicked cancel");
+                    let rzBox = document.querySelector(".rz-box");
+                    let p = document.createElement("p");
+                    p.innerHTML = `√ 秘钥Key：<span style="color:#3390FF;">${this.key}</span>`;
+                    // if (mm.indexOf("rror") > -1) {
+                    //   p.style.cssText = "color:red;";
+                    // } else if (mm.indexOf("ucces") > -1) {
+                    //   p.style.cssText = "color:#19be6b;";
+                    // }
+                    rzBox.appendChild(p);
+                    // this.$router.push({
+                    //   path: "/tablePage",
+                    //   query: { bid: this.key }
+                    // });
                   }
                 });
+
+                // this.$Modal.confirm({
+                //   title: "项目部署成功！",
+                //   content: "秘钥Key：" + this.key,
+                //   okText: "复制Key",
+                //   cancelText: "关闭",
+                //   onOk: () => {
+
+                //   },
+                //   onCancel: () => {
+                //     this.$Message.info("Clicked cancel");
+                //   }
+                // });
               } else {
                 this.$router.push({
                   path: "/tablePage",
@@ -786,6 +860,7 @@ export default {
         //   });
         //   return;
         // }
+        this.handleBuShuRiZhi();
         this.zzcAutoSubmit = true;
         let data = {
           gitUrl: this.gitUrl, //git 地址
@@ -953,9 +1028,25 @@ export default {
     // 		});
     // 	}
     // }
+  },
+  beforeDestroy() {
+    if (this.isClickBushu) {
+      window.location.reload();
+    }
+    // }
   }
+  // beforeDestroy() {
+  //   if (this.$socket) {
+  //     this.$socket.close();
+  //     this.$socket.disconnect();
+  //     // this.socket = null;
+  //   }
+  // }
 };
 </script>
 <style lang="scss" scoped>
 @import "./index.scss";
+/deep/ .ivu-modal-content {
+  margin-bottom: 100px;
+}
 </style>
