@@ -129,6 +129,9 @@
               <span>其他方式登录</span>
             </div>
             <ul>
+              <li v-if="$url.indexOf('10.0.88.46')>-1" @click="gitlabClick">
+                <img src="../../assets/gitlab.png" />
+              </li>
               <li @click="giteeClick">
                 <img src="../../assets/gitee.png" />
               </li>
@@ -193,7 +196,7 @@ export default {
   },
   created() {
     // 获取url里面的code
-    var code = this.getUrlData("code") || "";
+    let code = this.getUrlData("code") || "";
     if (code) {
       this.$Message.loading({
         content: "登录中，请稍后...",
@@ -227,6 +230,34 @@ export default {
         case "github":
           this.$axios
             .post("/api/person/oauth/github", this.$qs.stringify({ code }))
+            .then(res => {
+              this.$Message.destroy();
+              if (res.data.result) {
+                this.userName = res.data.data.name;
+                this.userPass = res.data.data.password;
+                this.handleSubmit();
+              } else {
+                this.$Message["error"]({
+                  background: true,
+                  content: "登录失败，请重新登录！"
+                });
+              }
+            })
+            .catch(function(error) {
+              this.$Message.destroy();
+              this.$Message["error"]({
+                background: true,
+                content: "登录失败，请重新登录！"
+              });
+            });
+          break;
+        case "gitlab":
+          let state = this.getUrlData("state") || "";
+          this.$axios
+            .post(
+              "/api/person/oauth/gitlab",
+              this.$qs.stringify({ code, state })
+            )
             .then(res => {
               this.$Message.destroy();
               if (res.data.result) {
@@ -377,7 +408,8 @@ export default {
             if (!user.url) {
               user.url = this.$url + "/images/dt.png";
             } else {
-              user.url = user.url.indexOf("http") > -1 ? user.url : this.$url + user.url;
+              user.url =
+                user.url.indexOf("http") > -1 ? user.url : this.$url + user.url;
             }
 
             this.$store.commit("setUser", user);
@@ -569,6 +601,18 @@ export default {
       window.sessionStorage.setItem("type", "gitee");
       // window.location.href = `https://gitee.com/oauth/authorize?client_id=f8747cff265598b49d5490eec1b922e362c99a332e2ba5592124af3a98884464&redirect_uri=${window
       window.location.href = `https://gitee.com/oauth/authorize?client_id=e4762d9e0e22e30c129ba61b235a1bfafcefbb5b58e46e2301c15ae6c514e0be&redirect_uri=${window
+        .location.origin + window.location.pathname}&response_type=code`;
+    },
+    // 第三方Gitlab登录 Gitlab登录点击事件
+    gitlabClick() {
+      this.$Message.destroy();
+      this.$Message.loading({
+        content: "授权中，请稍后...",
+        duration: 0
+      });
+      window.sessionStorage.setItem("type", "gitlab");
+      // https://gitlab.example.com/oauth/authorize?client_id=APP_ID&redirect_uri=REDIRECT_URI&response_type=code&state=YOUR_UNIQUE_STATE_HASH&scope=REQUESTED_SCOPES
+      window.location.href = `http://10.0.88.41:8888/oauth/authorize?client_id=390ffc00b6b1cb0dbcf34951a155d13a38ff2155b6ce711db91ade467a31974e&redirect_uri=${window
         .location.origin + window.location.pathname}&response_type=code`;
     },
     getUrlData(name) {

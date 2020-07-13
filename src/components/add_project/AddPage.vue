@@ -354,10 +354,10 @@ export default {
       port: "",
       // portArr: [],
       oneBugIsShow: false,
-      isUpLoader: true,
       zzcAutoSubmit: false,
       isHelp: false,
       isEx: false,
+      isUpLoader: true,
       uploader_key: new Date().getTime(), //这个用来刷新组件--解决不刷新页面连续上传的缓存上传数据（注：每次上传时，强制这个值进行更改---根据自己的实际情况重新赋值）
       options: {
         target: this.$url + "/api/deploy/files/add", //SpringBoot后台接收文件夹数据的接口
