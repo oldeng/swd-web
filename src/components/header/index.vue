@@ -16,13 +16,17 @@
           <MenuItem name="3" to="/projectmanage">
             <Icon type="ios-list-box-outline" size="20" />项目列表
           </MenuItem>
+
           <MenuItem name="4" to="/profile" v-if="user.mark!=='oauth'">
             <Icon type="ios-person" size="24" />个人中心
           </MenuItem>
-          <!-- <MenuItem name="3"  @click.native="handleShell"> -->
-          <MenuItem name="5" to="/shell">
-            <Icon type="md-code-working" size="24" />命令行
+          <MenuItem name="5" @click.native="handleRouterLog">
+            <Icon type="ios-list-box-outline" size="20" />日志列表
           </MenuItem>
+          <!-- <MenuItem name="3"  @click.native="handleShell"> -->
+          <!-- <MenuItem name="5" to="/shell">
+            <Icon type="md-code-working" size="24" />命令行
+          </MenuItem>-->
           <!-- <Submenu name="3">
           <template slot="title">
             <Icon type="ios-stats" />使用文档
@@ -75,6 +79,19 @@
         </DropdownMenu>
       </Dropdown>
     </div>
+    <Modal v-model="isOpen" width="360">
+      <p slot="header">
+        <Icon type="ios-information-circle" size="20" style="color:#f60;margin-right:10px;">></Icon>
+        <span>请输入登录密码进行验证</span>
+      </p>
+
+      <Input v-model="password" placeholder="请输入密码..." style="width: 100%" />
+
+      <div slot="footer">
+        <Button @click="handleRouterLog">取消</Button>
+        <Button type="primary" @click="handleCheck">确定</Button>
+      </div>
+    </Modal>
   </div>
 </template>
 <script>
@@ -83,6 +100,8 @@ export default {
     return {
       theme: "dark",
       inputVal: "",
+      password: "",
+      isOpen: false,
       user: {}
     };
   },
@@ -106,6 +125,23 @@ export default {
       win.opener = null;
       win.location = url;
       win.target = "_blank";
+    },
+    handleCheck() {
+      let user = this.$store.state.variable.info;
+      if (user.password === this.password) {
+        this.isOpen = false;
+        this.password = "";
+        this.$router.push({ path: "/logs" });
+      } else {
+        this.$Modal.error({
+          title: "系统提示",
+          content: "密码错误，请重新输入！"
+        });
+      }
+    },
+    handleRouterLog() {
+      this.password = "";
+      this.isOpen = !this.isOpen;
     },
     handleRouter() {
       this.$router.push({ path: "/" });

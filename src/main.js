@@ -37,6 +37,8 @@ Vue.use(VueClipboard)
 
 Vue.config.productionTip = false
 
+import './utils/flexible' //rem 转换
+
 //实例化 store
 import store from './store' // this.$store.commit("setUser", user); 
 

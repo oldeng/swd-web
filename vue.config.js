@@ -47,7 +47,19 @@ module.exports = {
       .loader('url-loader')
       .tap(options => Object.assign(options, { limit: 6144 }))
   },
-
+  css: {
+    loaderOptions: {
+      css: {},
+      postcss: {
+        plugins: [
+          require('postcss-px2rem')({ 
+            // remUnit: 37.5
+            remUnit: 192
+          })
+        ]
+      }
+    }
+  },
   // chainWebpack: config => {
   //   // ie报错无效字符 添加该配置项 解决该问题
   //   config.module

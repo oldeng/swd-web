@@ -143,10 +143,9 @@
         </div>
       </div>
       <!-- 账号密码 -->
-      <p class="moren">
-        <span>账号：admin</span>
-        <span>密码：123456</span>
-      </p>
+      <!-- <p class="moren">
+      <span>说明文档</span>  <a href="http://zhenglinglu.cn/">http://zhenglinglu.cn/</a>
+      </p> -->
     </div>
     <div class="bolang">
       <svg class="waves" viewBox="0 24 150 28" preserveAspectRatio="none" shape-rendering="auto">

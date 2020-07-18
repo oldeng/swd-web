@@ -15,6 +15,7 @@
     "font-awesome": "^4.7.0",
     "jquery": "^3.5.1",
     "mockjs": "^1.1.0",
+    "postcss-px2rem": "^0.3.0",
     "socket.io-client": "^2.1.1",
     "underscore": "^1.10.2",
     "view-design": "^4.0.2",

@@ -149,7 +149,7 @@ export default {
       {
         title: "项目名称",
         width: 180,
-        slot: "projectName"
+        slot: "projectName",
       },
 
       {

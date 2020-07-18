@@ -28,10 +28,14 @@ section {
                 font-size: 16px;
                 cursor: pointer;
                 letter-spacing: 2px;
-               transition: color .2s;
+                white-space: nowrap;
+                text-overflow: ellipsis;
+                overflow: hidden;
+                word-break: break-all;
+                transition: color 0.2s;
             }
-            h2:hover{
-                 color: #27CFC3;
+            h2:hover {
+                color: #27cfc3;
             }
             .description {
                 padding: 10px;
