@@ -9,7 +9,9 @@
         <!-- <h2 v-if="!loginVal">用户登录</h2>
         <h2 v-else>用户注册</h2>-->
         <h1>前端自动化部署平台</h1>
-        <div class="login-top">
+        <div
+          :class="[config.gitlab||config.gitee||config.github?'login-top':'login-top login-top-no']"
+        >
           <div class="in-box">
             <!-- <span>用户名</span> -->
             <input type="text" v-model="userName" placeholder="请输入用户名..." />
@@ -46,7 +48,7 @@
           </label>
         </div>
         <!-- 注册邮箱 -->
-        <div v-if="loginVal">
+        <div v-if="loginVal&&config.email">
           <div class="in-box">
             <input type="text" v-model="email" style="padding-right:60px;" placeholder="请输入您的邮箱..." />
             <Icon type="ios-mail" />
@@ -68,7 +70,7 @@
             <Icon type="ios-mail" />
           </div>
         </div>
-        <div v-if="loginVal">
+        <div v-if="loginVal&&config.email">
           <div class="in-box">
             <!-- <span>验证码</span> -->
             <input type="text" v-model="code" placeholder="请输入验证码..." />
@@ -102,7 +104,7 @@
                 还没账号？
                 <a href="javascript:void(0);" @click="handleLoginVal">去注册</a>
               </span>
-              <span>
+              <span v-if="config.email">
                 <a href="javascript:void(0);" @click="resetMailbox">忘记密码？</a>
               </span>
             </p>
@@ -124,18 +126,18 @@
               <Icon type="ios-loading" size="18" class="demo-spin-icon-load" v-if="loading"></Icon>
             </div>
           </div>
-          <div class="login-oauth">
+          <div class="login-oauth" v-if="config.gitlab||config.gitee||config.github">
             <div class="oauth-title">
               <span>其他方式登录</span>
             </div>
             <ul>
-              <li v-if="$url.indexOf('10.0.88.46')>-1" @click="gitlabClick">
+              <li v-if="config.gitlab" @click="gitlabClick">
                 <img src="../../assets/gitlab.png" />
               </li>
-              <li @click="giteeClick">
+              <li v-if="config.gitee" @click="giteeClick">
                 <img src="../../assets/gitee.png" />
               </li>
-              <li @click="githubClick">
+              <li v-if="config.github" @click="githubClick">
                 <i class="fa fa-github"></i>
               </li>
             </ul>
@@ -145,7 +147,7 @@
       <!-- 账号密码 -->
       <!-- <p class="moren">
       <span>说明文档</span>  <a href="http://zhenglinglu.cn/">http://zhenglinglu.cn/</a>
-      </p> -->
+      </p>-->
     </div>
     <div class="bolang">
       <svg class="waves" viewBox="0 24 150 28" preserveAspectRatio="none" shape-rendering="auto">
@@ -182,30 +184,44 @@ export default {
     isSendCode: true,
     count: 59,
     loginVal: false,
-    rEmail: true
+    rEmail: true,
+    config: {},
   }),
   props: {
-    msg: String
+    msg: String,
   },
   watch: {
     userPass1(val) {
       if (this.userPass != val) {
       }
-    }
+    },
   },
   created() {
+    //读取配置
+    this.$axios
+      .post("/api/person/oauth/config")
+      .then((res) => {
+        if (res.data.result) {
+          this.config = res.data.data;
+        } else {
+          console.log("配置信息读取失败！");
+        }
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
     // 获取url里面的code
     let code = this.getUrlData("code") || "";
     if (code) {
       this.$Message.loading({
         content: "登录中，请稍后...",
-        duration: 0
+        duration: 0,
       });
       switch (window.sessionStorage.getItem("type")) {
         case "gitee":
           this.$axios
             .post("/api/person/oauth/gitee", this.$qs.stringify({ code }))
-            .then(res => {
+            .then((res) => {
               this.$Message.destroy();
               if (res.data.result) {
                 this.userName = res.data.data.name;
@@ -214,22 +230,22 @@ export default {
               } else {
                 this.$Message["error"]({
                   background: true,
-                  content: "登录失败，请重新登录！"
+                  content: "登录失败，请重新登录！",
                 });
               }
             })
-            .catch(function(error) {
+            .catch(function (error) {
               this.$Message.destroy();
               this.$Message["error"]({
                 background: true,
-                content: "登录失败，请重新登录！"
+                content: "登录失败，请重新登录！",
               });
             });
           break;
         case "github":
           this.$axios
             .post("/api/person/oauth/github", this.$qs.stringify({ code }))
-            .then(res => {
+            .then((res) => {
               this.$Message.destroy();
               if (res.data.result) {
                 this.userName = res.data.data.name;
@@ -238,15 +254,15 @@ export default {
               } else {
                 this.$Message["error"]({
                   background: true,
-                  content: "登录失败，请重新登录！"
+                  content: "登录失败，请重新登录！",
                 });
               }
             })
-            .catch(function(error) {
+            .catch(function (error) {
               this.$Message.destroy();
               this.$Message["error"]({
                 background: true,
-                content: "登录失败，请重新登录！"
+                content: "登录失败，请重新登录！",
               });
             });
           break;
@@ -257,7 +273,7 @@ export default {
               "/api/person/oauth/gitlab",
               this.$qs.stringify({ code, state })
             )
-            .then(res => {
+            .then((res) => {
               this.$Message.destroy();
               if (res.data.result) {
                 this.userName = res.data.data.name;
@@ -266,15 +282,15 @@ export default {
               } else {
                 this.$Message["error"]({
                   background: true,
-                  content: "登录失败，请重新登录！"
+                  content: "登录失败，请重新登录！",
                 });
               }
             })
-            .catch(function(error) {
+            .catch(function (error) {
               this.$Message.destroy();
               this.$Message["error"]({
                 background: true,
-                content: "登录失败，请重新登录！"
+                content: "登录失败，请重新登录！",
               });
             });
           break;
@@ -309,33 +325,33 @@ export default {
       let data = {
         mark: 0,
         email: this.email,
-        name: this.userName
+        name: this.userName,
       };
       if (!this.email) {
         this.$Message["error"]({
           background: true,
-          content: "请输入邮箱地址！"
+          content: "请输入邮箱地址！",
         });
         return;
       }
       if (!this.checkEmail(this.email)) {
         this.$Message["error"]({
           background: true,
-          content: "请正确输入邮箱地址！"
+          content: "请正确输入邮箱地址！",
         });
         return;
       }
       if (!this.userName) {
         this.$Message["error"]({
           background: true,
-          content: "请输入用户名！"
+          content: "请输入用户名！",
         });
         return;
       }
 
       this.$axios
         .post("/api/person/user/login", this.$qs.stringify(data))
-        .then(res => {
+        .then((res) => {
           if (res.data.result) {
             this.isSendCode = false;
             let time = window.setInterval(() => {
@@ -348,16 +364,16 @@ export default {
             }, 1000);
             this.$Message["success"]({
               background: true,
-              content: "验证码已发送，请注意查收！"
+              content: "验证码已发送，请注意查收！",
             });
           } else {
             this.$Message["error"]({
               background: true,
-              content: "验证码发送失败！"
+              content: "验证码发送失败！",
             });
           }
         })
-        .catch(function(error) {
+        .catch(function (error) {
           console.log(error);
         });
     },
@@ -370,12 +386,12 @@ export default {
       this.$Message.destroy();
       let data = {
         name: this.userName,
-        pass: this.userPass
+        pass: this.userPass,
       };
       if (!this.userName) {
         this.$Message["error"]({
           background: true,
-          content: "请输入用户名！"
+          content: "请输入用户名！",
         });
         return;
       }
@@ -390,14 +406,14 @@ export default {
       if (!this.userPass) {
         this.$Message["error"]({
           background: true,
-          content: "请输入密码！"
+          content: "请输入密码！",
         });
         return;
       }
       this.loading = true;
       this.$axios
         .post("/api/person/user/login", this.$qs.stringify(data))
-        .then(res => {
+        .then((res) => {
           this.loading = false;
           if (res.data.result) {
             window.sessionStorage.clear();
@@ -418,11 +434,11 @@ export default {
             window.sessionStorage.setItem("state", false);
             this.$Message["error"]({
               background: true,
-              content: "登录失败，请重新登录！"
+              content: "登录失败，请重新登录！",
             });
           }
         })
-        .catch(function(error) {
+        .catch(function (error) {
           console.log(error);
         });
     },
@@ -433,13 +449,13 @@ export default {
         name: this.userName,
         password: this.userPass,
         email: this.email,
-        code: this.code
+        code: this.code,
       };
 
       if (!this.userName) {
         this.$Message["error"]({
           background: true,
-          content: "请输入用户名！"
+          content: "请输入用户名！",
         });
         return;
       }
@@ -453,30 +469,35 @@ export default {
       if (!this.userPass) {
         this.$Message["error"]({
           background: true,
-          content: "请输入密码！"
+          content: "请输入密码！",
         });
         return;
       }
-      if (!this.email) {
-        this.$Message["error"]({
-          background: true,
-          content: "请输入邮箱地址！"
-        });
-        return;
-      }
-      if (!this.checkEmail(this.email)) {
-        this.$Message["error"]({
-          background: true,
-          content: "请正确输入邮箱地址！"
-        });
-        return;
-      }
-      if (!this.code) {
-        this.$Message["error"]({
-          background: true,
-          content: "请输入验证码！"
-        });
-        return;
+
+      if (this.config.email) {
+        if (!this.email) {
+          this.$Message["error"]({
+            background: true,
+            content: "请输入邮箱地址！",
+          });
+          return;
+        }
+        if (!this.checkEmail(this.email)) {
+          this.$Message["error"]({
+            background: true,
+            content: "请正确输入邮箱地址！",
+          });
+          return;
+        }
+        if (!this.code) {
+          this.$Message["error"]({
+            background: true,
+            content: "请输入验证码！",
+          });
+          return;
+        }
+      }else{
+        data.type = 'y'
       }
       // this.$Message.loading({
       //   content: "注册中，请稍后...",
@@ -485,38 +506,38 @@ export default {
       this.loading = true;
       this.$axios
         .post("/api/person/user", this.$qs.stringify(data))
-        .then(res => {
+        .then((res) => {
           this.$Message.destroy();
           this.loading = false;
           if (res.data.result) {
             this.handleClear();
             this.$Message["success"]({
               background: true,
-              content: "注册成功，请登录！"
+              content: "注册成功，请登录！",
             });
             this.loginVal = false;
           } else {
             if (res.data.mas) {
               this.$Message["error"]({
                 background: true,
-                content: "验证码不正确，请重新输入！"
+                content: "验证码不正确，请重新输入！",
               });
             } else if (res.data.mark) {
               this.$Message["error"]({
                 background: true,
-                content: "您已注册，请直接登录！"
+                content: "您已注册，请直接登录！",
               });
               this.handleClear();
               this.loginVal = false;
             } else {
               this.$Message["error"]({
                 background: true,
-                content: "注册失败！"
+                content: "注册失败！",
               });
             }
           }
         })
-        .catch(function(error) {
+        .catch(function (error) {
           console.log(error);
         });
     },
@@ -525,47 +546,47 @@ export default {
       if (!this.userName) {
         this.$Message["error"]({
           background: true,
-          content: "请输入用户名！"
+          content: "请输入用户名！",
         });
         return;
       }
       if (!this.emailVal) {
         this.$Message["error"]({
           background: true,
-          content: "请输入邮箱地址！"
+          content: "请输入邮箱地址！",
         });
         return;
       }
       if (!this.checkEmail(this.emailVal)) {
         this.$Message["error"]({
           background: true,
-          content: "请正确输入邮箱地址！"
+          content: "请正确输入邮箱地址！",
         });
         return;
       }
       let data = {
         name: this.userName,
-        email: this.emailVal
+        email: this.emailVal,
       };
       this.loading = true;
       this.$axios
         .post("/api/person/user/reset", this.$qs.stringify(data))
-        .then(res => {
+        .then((res) => {
           this.loading = false;
           if (res.data.result) {
             this.$Message["success"]({
               background: true,
-              content: "密码已发至您的邮箱，请注意查收！"
+              content: "密码已发至您的邮箱，请注意查收！",
             });
             this.resetMailbox();
           } else {
             this.$Message["error"]({
               background: true,
-              content: "用户名或邮箱错误，请重新输入！"
+              content: "用户名或邮箱错误，请重新输入！",
             });
           }
         })
-        .catch(function(error) {
+        .catch(function (error) {
           console.log(error);
         });
     },
@@ -583,44 +604,51 @@ export default {
       this.$Message.destroy();
       this.$Message.loading({
         content: "授权中，请稍后...",
-        duration: 0
+        duration: 0,
       });
       window.sessionStorage.setItem("type", "github");
       // window.location.href = `https://github.com/login/oauth/authorize?client_id=8b089dc0bdefbbfc7d95&redirect_uri=${window
-      window.location.href = `https://github.com/login/oauth/authorize?client_id=597827f3b2327150f3d7&redirect_uri=${window
-        .location.origin + window.location.pathname}`;
+      window.location.href = `https://github.com/login/oauth/authorize?client_id=${
+        this.config.github
+      }&redirect_uri=${window.location.origin + window.location.pathname}`;
     },
     // 第三方Gitee登录 gitee登录点击事件
     giteeClick() {
       this.$Message.destroy();
       this.$Message.loading({
         content: "授权中，请稍后...",
-        duration: 0
+        duration: 0,
       });
       window.sessionStorage.setItem("type", "gitee");
       // window.location.href = `https://gitee.com/oauth/authorize?client_id=f8747cff265598b49d5490eec1b922e362c99a332e2ba5592124af3a98884464&redirect_uri=${window
-      window.location.href = `https://gitee.com/oauth/authorize?client_id=e4762d9e0e22e30c129ba61b235a1bfafcefbb5b58e46e2301c15ae6c514e0be&redirect_uri=${window
-        .location.origin + window.location.pathname}&response_type=code`;
+      window.location.href = `https://gitee.com/oauth/authorize?client_id=${
+        this.config.gitee
+      }&redirect_uri=${
+        window.location.origin + window.location.pathname
+      }&response_type=code`;
     },
     // 第三方Gitlab登录 Gitlab登录点击事件
     gitlabClick() {
       this.$Message.destroy();
       this.$Message.loading({
         content: "授权中，请稍后...",
-        duration: 0
+        duration: 0,
       });
       window.sessionStorage.setItem("type", "gitlab");
       // https://gitlab.example.com/oauth/authorize?client_id=APP_ID&redirect_uri=REDIRECT_URI&response_type=code&state=YOUR_UNIQUE_STATE_HASH&scope=REQUESTED_SCOPES
-      window.location.href = `http://10.0.88.41:8888/oauth/authorize?client_id=390ffc00b6b1cb0dbcf34951a155d13a38ff2155b6ce711db91ade467a31974e&redirect_uri=${window
-        .location.origin + window.location.pathname}&response_type=code`;
+      window.location.href = `http://10.0.88.41:8888/oauth/authorize?client_id=${
+        this.config.gitlab
+      }&redirect_uri=${
+        window.location.origin + window.location.pathname
+      }&response_type=code`;
     },
     getUrlData(name) {
       var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
       var r = window.location.search.substr(1).match(reg);
       if (r != null) return unescape(r[2]);
       return null;
-    }
-  }
+    },
+  },
 };
 </script>
 

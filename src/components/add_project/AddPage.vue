@@ -93,24 +93,25 @@
             </label>
             <Input v-model="root" placeholder="例如：dist" style="width: 300px" />
             <Tooltip max-width="200" content="指部署到服务器上的目录，也就是一级目录。" placement="right">
-              <Icon type="ios-help-circle-outline tip" size="22" :class="[isEx?'isEx':'']" />
+              <Icon type="ios-help-circle-outline tip" size="22" />
             </Tooltip>
             <span v-if="isEx" class="isEx">此目录已存在，请重新输入！</span>
           </div>
-          <div v-if="!isAddClear&&isIp">
+          <div>
             <label>部署端口：</label>
             <Input v-model="port" placeholder="例如：8080 （选填）" style="width: 300px" />
             <Tooltip max-width="200" content="默认：本系统端口号/部署目录/index.html" placement="right">
-              <Icon type="ios-help-circle-outline tip" size="22" :class="[isEx?'isEx':'']" />
+              <Icon type="ios-help-circle-outline tip" size="22" />
             </Tooltip>
             <span v-if="isPort==0" class="isEx">此端口已存在，请重新输入！</span>
             <span v-if="isPort==-2" class="isEx">端口号格式错误，请正确输入端口号！</span>
+            <span v-if="isPort==-3" class="isEx">端口应大于等于0且小于65536！</span>
           </div>
           <div>
             <label>代理地址：</label>
             <Input v-model="target" placeholder="例如：http://127.0.0.1 （选填）" style="width: 300px" />
             <Tooltip max-width="200" content="默认：若需解决跨域问题，可在这里填入需要代理的接口。" placement="right">
-              <Icon type="ios-help-circle-outline tip" size="22" :class="[isEx?'isEx':'']" />
+              <Icon type="ios-help-circle-outline tip" size="22" />
             </Tooltip>
             <span class="tip-text" v-if="target">
               将部署项目的 baseURL 改为：
@@ -270,8 +271,16 @@
                   <span class="select">application/json</span>
                 </div>
                 <div>
-                  4、在
-                  <span class="code">Secret</span> 中填入部署成功后返回的 Key 值。
+                  4、
+                  <span v-if="isOk">
+                    在
+                    <span class="code">Secret</span> 中填入秘钥Key：
+                    <span class="url">{{key}}</span>；
+                  </span>
+                  <span v-else>
+                    在
+                    <span class="code">Secret</span> 中填入部署成功后返回的 Key 值。
+                  </span>
                 </div>
                 <div>
                   5、
@@ -321,6 +330,46 @@
     <!-- 部署日志信息 -->
     <Modal title="部署日志" v-model="isRizhi" scrollable :mask-closable="false" :footer-hide="true">
       <div class="rz-box"></div>
+      <div class="rz-tip" v-if="isOk">
+        <div class="tip-box">
+          <div>
+            <p>
+              √ 秘钥Key：
+              <span style="color:#3390FF;">{{key}}</span>
+            </p>
+            <Divider orientation="left">关联 Git 仓库</Divider>
+            <div class="tisi">
+              <div>1、打开git：项目仓库 -> Settings -> Webhooks -> Add webhook；</div>
+              <div>
+                2、在
+                <span class="code">Target URL</span> 中填入
+                <span class="url">{{$url}}/api/deploy/git</span> 地址；
+              </div>
+              <div>
+                3、
+                <span class="code">POST Content Type</span> 选择
+                <span class="select">application/json</span>；
+              </div>
+              <div>
+                4、在
+                <span class="code">Secret</span> 中填入秘钥Key：
+                <span class="url">{{key}}</span>；
+              </div>
+              <div>
+                5、
+                <span class="code">Trigger On</span>选择
+                <span class="select">Push Events</span>；
+              </div>
+              <div>
+                <span style="color:red">注意：</span>若项代码托管平台为 GitHub 时，在第 2 步中需要填入
+                <span
+                  class="url"
+                >{{$url}}/api/deploy/git?key={{key?key:"返回的key值"}}</span> 地址。
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </Modal>
   </div>
 </template>
@@ -329,7 +378,7 @@ import Decorate from "../header/decorate";
 // import io from "socket.io-client";
 export default {
   components: {
-    Decorate
+    Decorate,
   },
   props: ["typeArr", "classArr"],
 
@@ -355,7 +404,7 @@ export default {
       // portArr: [],
       oneBugIsShow: false,
       zzcAutoSubmit: false,
-      isHelp: false,
+      isHelp: true,
       isEx: false,
       isUpLoader: true,
       uploader_key: new Date().getTime(), //这个用来刷新组件--解决不刷新页面连续上传的缓存上传数据（注：每次上传时，强制这个值进行更改---根据自己的实际情况重新赋值）
@@ -363,10 +412,10 @@ export default {
         target: this.$url + "/api/deploy/files/add", //SpringBoot后台接收文件夹数据的接口
         query: {
           root: "",
-          version: "1.0.1"
+          version: "1.0.1",
         },
         testChunks: false, //是否分片-不分片
-        fileParameterName: "file" //上传文件时文件的参数名，默认file
+        fileParameterName: "file", //上传文件时文件的参数名，默认file
       },
       root: "",
       version: "1.0.1",
@@ -376,7 +425,7 @@ export default {
         paused: "等待上传",
         success: "上传成功",
         uploading: "正在上传...",
-        waiting: "等待中..."
+        waiting: "等待中...",
       },
       baseUrl: "",
       projectName: "",
@@ -384,24 +433,26 @@ export default {
       remark: "",
       catalog: "", //上传目录
       isAddClear: true,
+      isOk: false,
       uid: "",
 
       // itemData: {}, //静态数据
       // projectNameData: {}, //单个数据
       mkdirArr: [], //服务器目录
 
+      isHistory: "yes",
       dist: "dist",
       modeType: "0",
       gitUrl: "", //git 地址
       branch: "master", //git 分支
-      order: "npm run build" //部署命令
+      order: "npm run build", //部署命令
       // mode: "静态部署" //模式
       // ----------------------------------------------------
     };
   },
   watch: {
     root(val) {
-      let arr = this.mkdirArr.filter(item => {
+      let arr = this.mkdirArr.filter((item) => {
         return item === val;
       });
       if (arr.length === 0) {
@@ -411,15 +462,21 @@ export default {
         this.isEx = true;
       }
     },
-    // isRizhi(val) {
-    //   if (!val) {
-    //     this.socket.close();
-    //     this.socket.disconnect();
-    //     // this.socket = null;
-    //   }
-    // },
+    isRizhi(val) {
+      if (!val && this.isOk) {
+        this.$router.push({
+          path: "/tablePage",
+          query: { bid: this.key },
+        });
+        // this.socket.close();
+        // this.socket.disconnect();
+        // this.socket = null;
+      }
+    },
     port(val) {
-      this.checkPort(val);
+      if (this.content.port) {
+        this.checkPort(val);
+      }
       let origin = window.location.origin;
       this.baseUrl = this.port
         ? origin.slice(0, origin.lastIndexOf(":")) + ":" + this.port
@@ -429,7 +486,7 @@ export default {
       // } else {
       //   this.isPort = false;
       // }
-    }
+    },
   },
 
   mounted() {
@@ -469,7 +526,7 @@ export default {
       //当服务器广播消息时，触发message事件，消息内容在回调函数中
       // this.socket.off("message");
       this.isClickBushu = true;
-      this.$socket.on("message", function(mm) {
+      this.$socket.on("message", function (mm) {
         let rzBox = document.querySelector(".rz-box");
         let p = document.createElement("p");
         p.innerText = `> ` + mm;
@@ -497,6 +554,7 @@ export default {
       this.branch = "master";
       this.order = "npm run build";
       this.root = "";
+      this.isHistory = "yes";
       this.target = "";
       this.port = "";
       this.key = "";
@@ -508,6 +566,7 @@ export default {
       this.idDeployment = "yes";
       this.catalog = "";
       this.remark = "";
+      this.isOk = false;
     },
     handleAddClear() {
       this.isAddClear = !this.isAddClear;
@@ -532,14 +591,14 @@ export default {
         // projectName: this.projectName,
         key: this.key,
         accurate: 1, //精确匹配
-        select: "one"
+        select: "one",
       };
       if (this.modeType == "1") {
         data.mode = this.modeType;
       }
       this.$axios
         .get("/api/deploy/edition/get", { params: data })
-        .then(res => {
+        .then((res) => {
           if (res.data.code == 200) {
             this.content = res.data.data;
             this.setData();
@@ -547,11 +606,11 @@ export default {
           } else {
             this.$Message["error"]({
               background: true,
-              content: "自动部署数据请求失败！"
+              content: "自动部署数据请求失败！",
             });
           }
         })
-        .catch(function(error) {
+        .catch(function (error) {
           console.log(error);
         });
     },
@@ -565,6 +624,7 @@ export default {
       this.getBidData();
     },
     getBidData() {
+      this.isHistory = this.content.isHistory;
       let arr = this.versionVal.split(".");
       if (arr[2].indexOf("9") > -1) {
         arr[2] = 0;
@@ -624,29 +684,33 @@ export default {
     getMkdir() {
       this.$axios
         .post("/api/deploy/files/read")
-        .then(res => {
+        .then((res) => {
           this.mkdirArr = res.data.mkdir;
         })
-        .catch(function(error) {
+        .catch(function (error) {
           console.log(error);
         });
     },
     checkPort(port) {
-      this.$axios
-        .post("/api/service/operation/test", this.$qs.stringify({ port }))
-        .then(res => {
-          if (res.data.result) {
-            this.isPort = res.data.state;
-          } else {
-            this.isPort = -2;
-          }
-          // let data = res.data.data;
-          // // data.push("82");
-          // this.portArr = data;
-        })
-        .catch(function(error) {
-          console.log(error);
-        });
+      if (this.content.port === port) {
+        this.isPort = 1;
+      } else {
+        this.$axios
+          .post("/api/service/operation/test", this.$qs.stringify({ port }))
+          .then((res) => {
+            if (res.data.result) {
+              this.isPort = res.data.state;
+            } else {
+              this.isPort = -2;
+            }
+            // let data = res.data.data;
+            // // data.push("82");
+            // this.portArr = data;
+          })
+          .catch(function (error) {
+            console.log(error);
+          });
+      }
     },
 
     // 静态部署
@@ -655,7 +719,7 @@ export default {
         this.$Notice.destroy();
         this.$Notice.error({
           title: "系统温馨提示",
-          desc: "您不是注册用户，请注册登录后操作！"
+          desc: "您不是注册用户，请注册登录后操作！",
         });
       } else {
         this.$Message.destroy();
@@ -663,7 +727,7 @@ export default {
         if (!this.projectName) {
           this.$Message["error"]({
             background: true,
-            content: "请选择所属项目！"
+            content: "请选择所属项目！",
           });
           return;
         }
@@ -677,14 +741,14 @@ export default {
         if (!this.root) {
           this.$Message["error"]({
             background: true,
-            content: "部署目录不得为空！"
+            content: "部署目录不得为空！",
           });
           return;
         }
         if (this.isUpLoader) {
           this.$Message["error"]({
             background: true,
-            content: "请上传部署文件！"
+            content: "请上传部署文件！",
           });
           return;
         }
@@ -703,6 +767,8 @@ export default {
           url: this.url ? this.url : "/images/dt.png",
           // idDeployment: this.idDeployment,
           root: this.root,
+          isHistory: this.isHistory,
+          root: this.root,
           target: this.target,
           version: this.version,
           uid: this.uid,
@@ -719,15 +785,15 @@ export default {
           gitUrl: this.gitUrl, //git 地址
           branch: this.branch ? this.branch : "master", //git 分支
           order: this.order ? this.order : "npm run build", //部署命令
-          mode: this.modeType //模式
+          mode: this.modeType, //模式
         };
         this.$Message.loading({
           content: "项目部署中...",
-          duration: 0
+          duration: 0,
         });
         this.$axios
           .post("/api/deploy/edition/add", this.$qs.stringify(data))
-          .then(res => {
+          .then((res) => {
             this.$Message.destroy();
             if (res.data.result) {
               // this.$Message["success"]({
@@ -743,20 +809,22 @@ export default {
                   content: "秘钥Key：" + this.key,
                   okText: "确定",
                   onOk: () => {
-                    let rzBox = document.querySelector(".rz-box");
-                    let p = document.createElement("p");
-                    p.innerHTML = `√ 秘钥Key：<span style="color:#3390FF;">${this.key}</span>`;
+                    // let rzBox = document.querySelector(".rz-box");
+                    // let p = document.createElement("p");
+                    // p.innerHTML = `√ 秘钥Key：<span style="color:#3390FF;">${this.key}</span>`;
+                    //  rzBox.appendChild(p);
+                    this.isOk = true;
                     // if (mm.indexOf("rror") > -1) {
                     //   p.style.cssText = "color:red;";
                     // } else if (mm.indexOf("ucces") > -1) {
                     //   p.style.cssText = "color:#19be6b;";
                     // }
-                    rzBox.appendChild(p);
+
                     // this.$router.push({
                     //   path: "/tablePage",
                     //   query: { bid: this.key }
                     // });
-                  }
+                  },
                 });
 
                 // this.$Modal.confirm({
@@ -774,7 +842,7 @@ export default {
               } else {
                 this.$router.push({
                   path: "/tablePage",
-                  query: { bid: this.key }
+                  query: { bid: this.key },
                 });
               }
             } else {
@@ -785,12 +853,12 @@ export default {
               this.$Message.destroy();
               this.$Modal.error({
                 title: "异常提示",
-                content: "发生未知错误，部署失败！"
+                content: "发生未知错误，部署失败！",
               });
               this.zzcAutoSubmit = false;
             }
           })
-          .catch(error => {
+          .catch((error) => {
             this.$Message.destroy();
             // this.$Message["error"]({
             //   background: true,
@@ -798,7 +866,7 @@ export default {
             // });
             this.$Modal.error({
               title: "异常提示",
-              content: "部署路径出现问题，部署失败！"
+              content: "部署路径出现问题，部署失败！",
             });
             this.zzcAutoSubmit = false;
             console.log(error);
@@ -812,7 +880,7 @@ export default {
         this.$Notice.destroy();
         this.$Notice.error({
           title: "系统温馨提示",
-          desc: "您不是注册用户，请注册登录后操作！"
+          desc: "您不是注册用户，请注册登录后操作！",
         });
       } else {
         this.$Message.destroy();
@@ -821,14 +889,14 @@ export default {
         if (!this.projectName) {
           this.$Message["error"]({
             background: true,
-            content: "请选择所属项目！"
+            content: "请选择所属项目！",
           });
           return;
         }
         if (!this.root) {
           this.$Message["error"]({
             background: true,
-            content: "部署目录不得为空！"
+            content: "部署目录不得为空！",
           });
           return;
         }
@@ -842,14 +910,14 @@ export default {
         if (!this.gitUrl) {
           this.$Message["error"]({
             background: true,
-            content: "Git 地址不得为空！"
+            content: "Git 地址不得为空！",
           });
           return;
         }
         if (!this.order) {
           this.$Message["error"]({
             background: true,
-            content: "部署命令不得为空！"
+            content: "部署命令不得为空！",
           });
           return;
         }
@@ -867,37 +935,37 @@ export default {
           root: this.root,
           port: this.port,
           branch: this.branch ? this.branch : "master", //git 分支
-          order: this.order //部署命令
+          order: this.order, //部署命令
         };
         this.$Message.loading({
           content: "请勿关闭浏览器，项目拉取中...",
-          duration: 0
+          duration: 0,
         });
         this.$axios
           .post("/api/deploy/auto/clone", this.$qs.stringify(data))
-          .then(res => {
+          .then((res) => {
             this.$Message.destroy();
             if (res.data.result) {
               this.$Message["success"]({
                 background: true,
-                content: "项目拉取成功！"
+                content: "项目拉取成功！",
               });
               this.handleInit(data);
             } else {
               this.$Message.destroy();
               this.$Modal.error({
                 title: "异常提示",
-                content: "发生未知错误，项目拉取失败！"
+                content: "发生未知错误，项目拉取失败！",
               });
               this.zzcAutoSubmit = false;
             }
           })
-          .catch(function(error) {
+          .catch(function (error) {
             console.log(error);
             this.$Message.destroy();
             this.$Modal.error({
               title: "异常提示",
-              content: "发生未知错误，项目拉取失败！"
+              content: "发生未知错误，项目拉取失败！",
             });
             this.zzcAutoSubmit = false;
           });
@@ -908,16 +976,16 @@ export default {
       this.$Message.destroy();
       this.$Message.loading({
         content: "请勿关闭当前界面，项目正在初始化，请耐心等待...",
-        duration: 0
+        duration: 0,
       });
       this.$axios
         .post("/api/deploy/auto/init", this.$qs.stringify(data))
-        .then(res => {
+        .then((res) => {
           this.$Message.destroy();
           if (res.data.result) {
             this.$Message["success"]({
               background: true,
-              content: "项目初始化成功！"
+              content: "项目初始化成功！",
             });
             this.handleBuild(data);
           } else {
@@ -928,17 +996,17 @@ export default {
             this.$Message.destroy();
             this.$Modal.error({
               title: "异常提示",
-              content: "发生未知错误，项目初始化失败！"
+              content: "发生未知错误，项目初始化失败！",
             });
             this.zzcAutoSubmit = false;
           }
         })
-        .catch(error => {
+        .catch((error) => {
           console.log(error);
           this.$Message.destroy();
           this.$Modal.error({
             title: "异常提示",
-            content: "发生未知错误，项目初始化失败！"
+            content: "发生未知错误，项目初始化失败！",
           });
           this.zzcAutoSubmit = false;
         });
@@ -948,16 +1016,16 @@ export default {
       this.$Message.destroy();
       this.$Message.loading({
         content: "请勿关闭当前界面，项目打包中，请耐心等待...",
-        duration: 0
+        duration: 0,
       });
       this.$axios
         .post("/api/deploy/auto/build", this.$qs.stringify(data))
-        .then(res => {
+        .then((res) => {
           if (res.data.result) {
             this.$Message.destroy();
             this.$Message["success"]({
               background: true,
-              content: "项目已打包完成！"
+              content: "项目已打包完成！",
             });
             this.isUpLoader = false;
             this.handleSubmit();
@@ -965,17 +1033,17 @@ export default {
             this.$Message.destroy();
             this.$Modal.error({
               title: "异常提示",
-              content: "发生未知错误，项目已打包失败！"
+              content: "发生未知错误，项目已打包失败！",
             });
             this.zzcAutoSubmit = false;
           }
         })
-        .catch(function(error) {
+        .catch(function (error) {
           console.log(error);
           this.$Message.destroy();
           this.$Modal.error({
             title: "异常提示",
-            content: "发生未知错误，项目已打包失败！"
+            content: "发生未知错误，项目已打包失败！",
           });
           this.zzcAutoSubmit = false;
         });
@@ -983,7 +1051,7 @@ export default {
     handleZzcAutoSubmit() {
       this.$Message["warning"]({
         background: true,
-        content: "请勿关闭当前界面，项目正在部署中，请耐心等待~"
+        content: "请勿关闭当前界面，项目正在部署中，请耐心等待~",
       });
     },
 
@@ -1003,7 +1071,7 @@ export default {
       window.sessionStorage.clear();
       this.$store.commit("setUser", {});
       this.$router.push({ path: "/login" });
-    }
+    },
     // -------------------------------------------------------
 
     // handleAddClear() {
@@ -1034,7 +1102,7 @@ export default {
       window.location.reload();
     }
     // }
-  }
+  },
   // beforeDestroy() {
   //   if (this.$socket) {
   //     this.$socket.close();

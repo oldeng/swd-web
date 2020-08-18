@@ -3,7 +3,7 @@ section > div {
     padding: 15px 0;
     border-radius: 6px;
 }
-.star{
+.star {
     color: red;
     margin-right: 3px;
 }
@@ -19,59 +19,7 @@ section > div {
         color: #2d8cf0;
         cursor: pointer;
     }
-    .tip-box {
-        position: absolute;
-        top: 0;
-        right: 30px;
-        h3 {
-            margin-bottom: 10px;
-            text-align: right;
-            font-size: 14px;
-            font-weight: 400;
-            margin-right: 10px;
-            opacity: 0.8;
-            span {
-                cursor: pointer;
-                margin-left: 5px;
-            }
-            span:hover,
-            .active {
-                color: #2d8cf0;
-            }
-            i {
-                cursor: pointer;
-            }
-        }
-        .tisi {
-            border: 1px dashed #ffd77aab;
-            background-color: #fff9e646;
-            border-radius: 4px;
-            padding: 20px;
-            margin: 10px;
-            width: 390px;
-            > div {
-                font-size: 12px;
-                color: #515a6e;
-                line-height: 1.5;
-                color: #515a6e;
-                margin-bottom: 6px;
-                .url {
-                    color: #2d8cf0;
-                }
-                .code {
-                    color: #fa795e;
-                }
-                .select {
-                    padding: 2px 4px;
-                    font-size: 90%;
-                    color: #c7254e;
-                    background-color: #f9f2f4;
-                    border-radius: 4px;
-                    margin: 0 5px;
-                }
-            }
-        }
-    }
+
     .uploader-example {
         width: 300px;
         font-size: 12px;
@@ -83,7 +31,7 @@ section > div {
             justify-content: center;
             padding: 0;
             border-radius: 4px;
-            label{
+            label {
                 display: block;
                 border: 0;
                 width: 100%;
@@ -98,9 +46,9 @@ section > div {
         overflow-x: hidden;
         overflow-y: auto;
     }
- 
+
     .warp {
-        padding-bottom: 20px;
+        // padding-bottom: 20px;
         position: relative;
         img {
             display: block;
@@ -163,9 +111,9 @@ section > div {
     }
 }
 
-.he-row{
+.he-row {
     position: relative;
-    .header__change{
+    .header__change {
         position: absolute;
         bottom: -30px;
         right: 150px;
@@ -180,12 +128,12 @@ section > div {
             border: solid transparent;
             border-width: 3px 1px 1px;
             border-radius: 3px 3px 0 0;
-         
-        }   .is-active {
-                color: #24292e;
-                background: #f5f7fa;
-                border-color: #2d8cf0 #e1e4e8 transparent;
-            }
+        }
+        .is-active {
+            color: #24292e;
+            background: #f5f7fa;
+            border-color: #2d8cf0 #e1e4e8 transparent;
+        }
     }
 }
 .auto-submit-zzc {
@@ -196,19 +144,81 @@ section > div {
     bottom: 0;
     z-index: 100;
 }
-.tip-text{
+.tip-text {
     margin-left: 15px;
     color: #19be6b;
-    i{
+    i {
         color: #2d8cf0;
     }
 }
-.rz-box{
+.rz-box {
     padding: 0 10px;
-    .error{
+    .error {
         color: red;
     }
-    .success{
+    .success {
         color: #19be6b;
+    }
+}
+.rz-tip {
+    .tip-box {
+        position: initial;
+        .tisi {
+            width: auto;
+            margin: 10px 0;
+        }
+    }
+}
+.tip-box {
+    position: absolute;
+    top: 0;
+    right: 30px;
+    h3 {
+        margin-bottom: 10px;
+        text-align: right;
+        font-size: 14px;
+        font-weight: 400;
+        margin-right: 10px;
+        opacity: 0.8;
+        span {
+            cursor: pointer;
+            margin-left: 5px;
+        }
+        span:hover,
+        .active {
+            color: #2d8cf0;
+        }
+        i {
+            cursor: pointer;
+        }
+    }
+    .tisi {
+        border: 1px solid #abdcff;
+        background-color: #f0faff;
+        border-radius: 4px;
+        padding: 20px;
+        margin: 10px;
+        width: 390px;
+        > div {
+            font-size: 12px;
+            color: #515a6e;
+            line-height: 1.5;
+            color: #515a6e;
+            margin-bottom: 6px;
+            .url {
+                color: #2d8cf0;
+            }
+            .code {
+                color: #fa795e;
+            }
+            .select {
+                padding: 2px 4px;
+                font-size: 90%;
+                color: #c7254e;
+                background-color: #f9f2f4;
+                border-radius: 4px;
+                margin: 0 5px;
+            }
+        }
     }
 }

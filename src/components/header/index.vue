@@ -20,9 +20,9 @@
           <MenuItem name="4" to="/profile" v-if="user.mark!=='oauth'">
             <Icon type="ios-person" size="24" />个人中心
           </MenuItem>
-          <MenuItem name="5" @click.native="handleRouterLog">
+          <!-- <MenuItem name="5" @click.native="handleRouterLog">
             <Icon type="ios-list-box-outline" size="20" />日志列表
-          </MenuItem>
+          </MenuItem> -->
           <!-- <MenuItem name="3"  @click.native="handleShell"> -->
           <!-- <MenuItem name="5" to="/shell">
             <Icon type="md-code-working" size="24" />命令行

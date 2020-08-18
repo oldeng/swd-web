@@ -1,9 +1,9 @@
 section {
     position: relative;
-    ul {
+    ul.box {
         display: flex;
         flex-wrap: wrap;
-        li {
+        >li {
             background: #fff;
             width: 282px;
             padding: 10px 20px;
@@ -19,7 +19,9 @@ section {
                 display: flex;
                 justify-content: center;
                 padding: 10px;
-                margin-bottom: 10px;
+                margin-bottom: 20px;
+                margin-top: 15px;
+                border-bottom: 1px solid #eee;
                 cursor: pointer;
                 color: #f84c5b;
             }
@@ -118,4 +120,30 @@ section {
     transition: all 0.3s;
     z-index: 90;
     bottom: 10%;
+}
+.box {
+    >li {
+        position: relative;
+        .state {
+            position: absolute;
+            top: 18px;
+            left: 20px;
+            i {
+                padding: 5px;
+                border-radius: 100%;
+                background: #f84c5b;
+                display: inline-block;
+                margin-right: 6px;
+            }
+        }
+        .auto{
+            left: 120px; 
+        }
+        .md-more {
+            position: absolute;
+            top: 18px;
+            right: 15px;
+            cursor: pointer;
+        }
+    }
 }

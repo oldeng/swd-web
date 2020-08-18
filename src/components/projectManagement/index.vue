@@ -30,12 +30,12 @@
               >{{ item.projectName }}</Option>
             </Select>
             <Table border :columns="columns" :data="content">
-              <template slot-scope="{ row }" slot="author">
+              <!-- <template slot-scope="{ row }" slot="author">
                 <div class="author">
                   <img :src="$url+row.url" :alt="row.author" />
                   <span>{{row.author}}</span>
                 </div>
-              </template>
+              </template>-->
               <template slot-scope="{ row }" slot="projectName">
                 <Tooltip max-width="200" :content="row.projectName" placement="top">
                   <span class="nowrap">{{row.projectName}}</span>
@@ -44,8 +44,24 @@
               <template slot-scope="{ row }" slot="version">
                 <span style="color: #FAB67B;">{{ row.version }}</span>
               </template>
+              <template slot-scope="{ row }" slot="target">
+                <span>{{row.target?row.target:"暂无代理"}}</span>
+              </template>
+              <template slot-scope="{ row }" slot="port">
+                <p>
+                  <i
+                    v-if="row.port"
+                    class="yuandian"
+                    :style="{ background: row.idDeployment=='yes'&&row.isPort=='yes'?'cornflowerblue':'#ccc'}"
+                  ></i>
+                  <span>{{row.port?row.port:"无端口号"}}</span>
+                </p>
+              </template>
               <template slot-scope="{ row }" slot="idDeployment">
-                <span v-if="row.idDeployment=='yes'" style="color: #6CD1A7;">已部署</span>
+                <span
+                  v-if="row.idDeployment=='yes'"
+                  :style="{color:row.port?row.isPort==='yes'?'#6CD1A7':'red':'#6CD1A7'}"
+                >{{ row.port?row.isPort==='yes'?'已部署':'已暂停':'已部署'}}</span>
                 <span v-else style="color: #EC6C73;">未部署</span>
               </template>
               <template slot-scope="{ row }" slot="remark">
@@ -53,39 +69,41 @@
                   <span class="nowrap">{{row.remark}}</span>
                 </Tooltip>
               </template>
-              <template slot-scope="{ row }" slot="target">
-                  <span>{{row.target?row.target:"暂无代理"}}</span>
-              </template>
-              <template slot-scope="{ row }" slot="webUrl">
-                <p>
-                  <i
-                    v-if="row.port"
-                    class="yuandian"
-                    :style="{ background: row.idDeployment=='yes'?'cornflowerblue':'#ccc'}"
-                  ></i>
-                  <span>{{row.port?row.port:"无端口号"}}</span>
-                </p>
-                <!-- <span
+              <!-- <template slot-scope="{ row }" slot="webUrl">
+                <span
                   v-if="row.idDeployment=='yes'"
                   class="copy1"
                   v-clipboard:copy="row.href"
                   v-clipboard:success="onCopy"
                   v-clipboard:error="onError"
                 >复制链接</span>
-                <span v-else class="copy2">复制链接</span>-->
-              </template>
-              <template slot-scope="{ row }" slot="mode">
+                <span v-else class="copy2">复制链接</span>
+              </template>-->
+              <!-- <template slot-scope="{ row }" slot="mode">
                 <span>{{row.mode!='1'?'静态部署':'自动部署'}}</span>
-              </template>
+              </template>-->
               <template slot-scope="{ row }" slot="action">
                 <div class="error-bot">
                   <Button
-                    v-if="row.idDeployment=='yes'"
+                    v-if="!row.port"
                     @click="handleShow(row)"
                     type="success"
                     size="small"
+                    :disabled="row.idDeployment!=='yes'"
                   >访问</Button>
-                  <Button v-else type="primary" size="small" @click="handleDeploy(row)">部署</Button>
+                  <Button
+                    v-else-if="row.idDeployment=='yes'"
+                    @click="handleShow(row)"
+                    type="success"
+                    size="small"
+                    :disabled="row.isPort!=='yes'"
+                  >访问</Button>
+                  <Button
+                    v-if="row.idDeployment!=='yes'"
+                    type="primary"
+                    size="small"
+                    @click="handleDeploy(row)"
+                  >部署</Button>
                   <Button
                     v-if="user.bid==row.authorId"
                     type="error"
@@ -138,7 +156,7 @@
 import Decorate from "../header/decorate";
 export default {
   components: {
-    Decorate
+    Decorate,
   },
   name: "tablePage",
   // components: {
@@ -156,64 +174,68 @@ export default {
       {
         title: "项目名称",
         width: 180,
-        slot: "projectName"
+        slot: "projectName",
       },
-
-      {
-        title: "发布者",
-        width: 150,
-        slot: "author"
-      },
+      // {
+      //   title: "发布者",
+      //   width: 160,
+      //   slot: "author"
+      // },
       {
         title: "版本号",
         width: 80,
-        slot: "version"
-      },
-      {
-        title: "状态",
-        width: 80,
-        slot: "idDeployment"
+        slot: "version",
       },
       {
         title: "端口号",
         width: 100,
-        slot: "webUrl"
+        slot: "port",
+      },
+      {
+        title: "状态",
+        width: 80,
+        slot: "idDeployment",
       },
       {
         title: "代理地址",
         // width: 110,
-        slot: "target"
+        slot: "target",
       },
-      {
-        title: "部署模式",
-        width: 100,
-        slot: "mode"
-      },
+
+      // {
+      //   title: "部署模式",
+      //   width: 100,
+      //   slot: "mode",
+      // },
       {
         title: "描述",
         // width: 170,
-        slot: "remark"
+        slot: "remark",
       },
-
       {
-        title: "创建时间",
+        title: "部署时间",
         width: 170,
-        key: "time"
+        key: "time",
       },
 
+      // {
+      //   title: "访问链接",
+      //   width: 110,
+      //   slot: "webUrl"
+      // },
       {
         title: "操作",
         slot: "action",
         align: "center",
-        width: 150
-      }
+        width: 200,
+      },
     ],
     data6: [
       {
         name: "John Brown",
         age: 18,
-        address: "New York No. 1 Lake Park"
-      }
+        address: "New York No. 1 Lake Park",
+      },
     ],
     content: [],
     itemData: {},
@@ -222,7 +244,7 @@ export default {
     cityList1: [],
     cityList2: [
       { name: "已部署", value: "yes" },
-      { name: "未部署", value: "no" }
+      { name: "未部署", value: "no" },
     ],
     titleVal: "",
     authorVal: "",
@@ -238,14 +260,14 @@ export default {
     cityList3: [],
     // bid: "",
 
-    classVal: ""
+    classVal: "",
 
     // class: "", //通过类型判断 page 是否置1
 
     // bidData: {}
   }),
   props: {
-    msg: String
+    msg: String,
   },
   mounted() {
     // this.author = this.$store.state.variable.user.name;
@@ -269,14 +291,14 @@ export default {
         // key: this.key
       };
       if (this.key) {
-        data.key = this.key
+        data.key = this.key;
       }
       this.$axios
         .get("/api/deploy/edition/get", { params: data })
-        .then(res => {
+        .then((res) => {
           if (res.data.result) {
             let data = res.data.list;
-            data.forEach(item => {
+            data.forEach((item) => {
               let href = this.$url;
               if (item.port == "") {
                 href = this.$url + item.webUrl + "/index.html";
@@ -296,11 +318,11 @@ export default {
           } else {
             this.$Message["error"]({
               background: true,
-              content: "数据请求失败！"
+              content: "数据请求失败！",
             });
           }
         })
-        .catch(function(error) {
+        .catch(function (error) {
           console.log(error);
         });
     },
@@ -311,13 +333,13 @@ export default {
         this.$Notice.destroy();
         this.$Notice.error({
           title: "系统温馨提示",
-          desc: "您不是注册用户，请注册登录后操作！"
+          desc: "您不是注册用户，请注册登录后操作！",
         });
       } else {
         this.$Message.destroy();
         this.$Message.loading({
           content: "项目部署中，请稍后...",
-          duration: 0
+          duration: 0,
         });
         let data = {
           root: e.root,
@@ -325,32 +347,32 @@ export default {
           catalog: e.catalog,
           bid: e.bid,
           projectName: e.projectName,
-          key: e.key
+          key: e.key,
           // uidArr: JSON.stringify(uidArr)
         };
         this.$axios
           .post("/api/deploy/edition/transfer", this.$qs.stringify(data))
-          .then(res => {
+          .then((res) => {
             this.$Message.destroy();
             if (res.data.result) {
               this.$Message["success"]({
                 background: true,
-                content: "项目部署成功！"
+                content: "项目部署成功！",
               });
               // this.$emit("on-reset", {});
               this.handleGetData();
             } else {
               this.$Message["error"]({
                 background: true,
-                content: "项目部署失败！"
+                content: "项目部署失败！",
               });
             }
           })
-          .catch(function(error) {
+          .catch(function (error) {
             this.$Message.destroy();
             this.$Message["error"]({
               background: true,
-              content: "项目部署失败！"
+              content: "项目部署失败！",
             });
           });
       }
@@ -393,24 +415,24 @@ export default {
         bid: this.itemData.bid,
         root: this.itemData.root,
         version: this.itemData.version,
-        catalog: this.itemData.catalog
+        catalog: this.itemData.catalog,
       };
       this.$axios
         .post("/api/deploy/edition/delete", this.$qs.stringify(data))
-        .then(res => {
+        .then((res) => {
           if (res.data.result) {
             // this.cityList1 = res.data.data;
             this.handleGetData();
           } else {
             this.$Message["error"]({
               background: true,
-              content: "数据删除失败！"
+              content: "数据删除失败！",
             });
           }
           this.modal_loading = false;
           this.isModel = false;
         })
-        .catch(function(error) {
+        .catch(function (error) {
           console.log(error);
         });
     },
@@ -418,16 +440,16 @@ export default {
       this.$Message.destroy();
       this.$Message["success"]({
         background: true,
-        content: "复制成功！"
+        content: "复制成功！",
       });
     },
     onError() {
       this.$Message.destroy();
       this.$Message["success"]({
         background: true,
-        content: "复制失败！"
+        content: "复制失败！",
       });
-    }
+    },
     // ********************************************************
     // setData(data) {
     //   this.content = data.content;
@@ -472,7 +494,7 @@ export default {
     //     version: this.titleVal
     //   });
     // }
-  }
+  },
 };
 </script>
 <style lang="scss" scoped>
